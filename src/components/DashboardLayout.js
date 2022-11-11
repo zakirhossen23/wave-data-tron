@@ -42,7 +42,7 @@ function DashboardLayout() {
                <div
                   key={id}
                   className="aspect-square w-full border-b border-b-gray-200 flex flex-col items-center justify-center hover:cursor-pointer"
-                  onClick={() => navigate(route)}
+                  onClick={() => window.location.href =(route)}
                >
                   <IconComponent className={`h-6 w-6 ${active && 'text-orange-400'}`} />
                   <p className={`text-md ${active && 'text-orange-400'}`}>{title}</p>

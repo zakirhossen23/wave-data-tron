@@ -1,43 +1,53 @@
 import { PlusSmIcon, ArrowRightIcon, UserIcon, CurrencyDollarIcon, GlobeAltIcon } from "@heroicons/react/solid";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DUMMY_TRIALS_DATA } from "./data";
 import CreateTrialModal from '../components/modal/CrateTrial'
 
+let isLoadingData = false;
 function Trials() {
    const navigate = useNavigate();
    const [data, setData] = useState([]);
    const [CreatemodalShow, setModalShow] = useState(false);
+   const [Loading, setLoading] = useState(true);
    const addTrial = () => {
       setModalShow(true);
    };
 
    let contract = { contract: null, signerAddress: null };
    async function getContract() {
+      setLoading(true);
       let useContract = await import("../contract/useContract.ts");
       contract = await useContract.default();
       window.contract = contract;
       LoadData()
    }
-   window.onload= ()=>{ getContract();}
+   window.onload = () => { getContract(); }
 
    async function LoadData() {
-      if (typeof window?.contract?.contract !== 'undefined') {
+      if (!isLoadingData) {
+         isLoadingData = true;
+         setLoading(true);
+         if (typeof window?.contract?.contract !== 'undefined') {
+            await getContract();
+         }
          setData([])
          for (let i = 0; i < Number(await window.contract.contract._TrialIds().call()); i++) {
             let trial_element = await window.contract.contract._trialMap(i).call();
             var newTrial = {
-               id: Number(trial_element.id),
+               id: Number(trial_element.trial_id),
                title: trial_element.title,
                image: trial_element.image,
                description: trial_element.description,
                contributors: Number(trial_element.contributors),
-               audience:Number( trial_element.audience),
+               audience: Number(trial_element.audience),
                budget: Number(trial_element.budget)
             };
             setData(prevState => [...prevState, newTrial]);
          }
+
+         isLoadingData = false;
       }
+      setLoading(false);
 
    }
 
@@ -55,14 +65,14 @@ function Trials() {
             {data.map(({ id, title, image, description, contributors, audience, budget }, index) => {
                const IS_LAST = index + 1 === data.length;
                return (
-                  <div key={id} className={`bg-white border border-gray-400 rounded-lg overflow-hidden ${!IS_LAST && 'mb-2'}`}>
+                  <div key={index} className={`bg-white border border-gray-400 rounded-lg overflow-hidden ${!IS_LAST && 'mb-2'}`}>
                      <div className="flex p-6">
                         <img src={image} alt="Trial" className="w-[128px] h-[128px] object-cover max-w-xs" />
                         <div className="mx-8 flex-1">
                            <p className="text-3xl font-semibold">{title}</p>
                            <p className="mt-6">{`${description.slice(0, 180)}...`}</p>
                         </div>
-                        <button onClick={() => navigate(`/trials/${id}`)} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center">
+                        <button onClick={() => window.location.href = (`/trials/${id}`)} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center">
                            <ArrowRightIcon className="w-5 h-5 text-gray-400" />
                         </button>
                      </div>
@@ -83,7 +93,9 @@ function Trials() {
                   </div>
                );
             })}
-         </>) : (<><p className="alert alert-info font-semibold text-3xl text-center">No Trials</p></>)
+         </>) : (Loading == true ? (<>
+            <p className="alert alert-info font-semibold text-3xl text-center">Loading...</p>
+         </>) : (<><p className="alert alert-info font-semibold text-3xl text-center">No Trials</p></>))
          }
          <CreateTrialModal
             show={CreatemodalShow}

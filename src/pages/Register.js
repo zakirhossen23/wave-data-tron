@@ -6,20 +6,20 @@ function Register() {
 
     let contract = { contract: null, signerAddress: null };
     async function getContract() {
-      let useContract = await import("../contract/useContract.ts");
-      contract = await useContract.default();
-      window.contract = contract;
+        let useContract = await import("../contract/useContract.ts");
+        contract = await useContract.default();
+        window.contract = contract;
     }
-    
+
     window.onload = (e) => {
         getContract();
         if (Cookies.get("login") == "true") {
-            navigate("/trials",{replace:true});
+            navigate("/trials", { replace: true });
             window.location.href = "/trials";
         }
     };
     function loginLink() {
-        navigate("/login",{replace:true});
+        navigate("/login", { replace: true });
     }
     async function RegisterAcc(event) {
 
@@ -45,22 +45,25 @@ function Register() {
         }
 
         try {
-            if (await contract.contract.CheckEmail(emailTXT.value).call() === "False"){
-                await contract.contract.CreateAccount(FullNameTXT.value,emailTXT.value,passwordTXT.value).send({
+            if (typeof window?.contract?.contract !== 'undefined') {
+                await getContract();
+            }
+            if (await window.contract.contract.CheckEmail(emailTXT.value).call() === "False") {
+                await window.contract.contract.CreateAccount(FullNameTXT.value, emailTXT.value, passwordTXT.value).send({
                     feeLimit: 1_000_000_000,
                     shouldPollResponse: false
                 });
                 SuccessNotification.style.display = "block";
                 window.location.href = "/login"
-            }else{
-                 //Error
-                 LoadingICON.style.display = "none";
-                 buttonTextBox.style.display = "block";
-                 FailedNotification.innerText = "Email already registered!"
-                 FailedNotification.style.display = "block";
-                 registerbutton.disabled = false;
-                 return;
-            }        
+            } else {
+                //Error
+                LoadingICON.style.display = "none";
+                buttonTextBox.style.display = "block";
+                FailedNotification.innerText = "Email already registered!"
+                FailedNotification.style.display = "block";
+                registerbutton.disabled = false;
+                return;
+            }
 
 
         } catch (error) {

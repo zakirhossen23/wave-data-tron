@@ -15,7 +15,6 @@ import SurveyDetails from "./pages/SurveyDetails";
 import Team from "./pages/Team";
 import TrialDetails from "./pages/TrialDetails";
 import Trials from "./pages/Trials";
-import Home from './pages/Home'
 import AppDownload from './pages/AppDownload'
 
 import Work from './pages/work';

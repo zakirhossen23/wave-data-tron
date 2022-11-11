@@ -41,14 +41,17 @@ function Login() {
          return;
       }
       try {
-         if (await contract.contract.CheckEmail(emailTXT.value).call() === "False"){
+         if (typeof window?.contract?.contract !== 'undefined'){
+            await getContract() ;
+         }
+         if (await window.contract.contract.CheckEmail(emailTXT.value).call() === "False"){
             FailedNotification.innerText = "Email is not valid"
             FailedNotification.style.display = "block";
             buttonTextBox.style.display = "block";
             LoadingICON.style.display = "none";
             return;
          }
-         let userid = await contract.contract.CheckEmail(emailTXT.value).call()
+         let userid = await window.contract.contract.CheckEmail(emailTXT.value).call()
 
          if (userid !== "False")
          {

@@ -30,6 +30,14 @@ function TrialDetails() {
 
    const [TRIAL_DATA, setTRIAL_DATA] = useState({})
    const [REWARD_DATA, setREWARD_DATA] = useState({})
+   let contract = { contract: null, signerAddress: null };
+   async function getContract() {
+      let useContract = await import("../contract/useContract.ts");
+      contract = await useContract.default();
+      window.contract = contract;
+      LoadData()
+   }
+   window.onload= ()=>{ getContract();}
 
    const TABS = [
       {
@@ -245,20 +253,21 @@ function TrialDetails() {
       console.log("done")
    }
    async function LoadData() {
-      setTRIAL_DATA({})
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetTrial?idTXT=${parseInt(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         setTRIAL_DATA(e.results[0]['(SV)'][0].attributes);
+      if (typeof window?.contract?.contract !== 'undefined') {
+         setTRIAL_DATA({})
+         let trial_element = await window.contract.contract._trialMap(parseInt(params.id)).call();
+         var newTrial = {
+            id: Number(trial_element.trial_id),
+            title: trial_element.title,
+            image: trial_element.image,
+            description: trial_element.description,
+            contributors: Number(trial_element.contributors),
+            audience:Number( trial_element.audience),
+            budget: Number(trial_element.budget)
+         };
+         setTRIAL_DATA(newTrial);
 
-      })
+      }
    }
    async function LoadDataSurvey() {
       setData([])
