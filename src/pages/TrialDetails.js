@@ -202,24 +202,17 @@ function TrialDetails() {
       rewardsSave.classList.add("cursor-default")
 
       rewardsSave.disabled = true;
-      var done = new Promise(async (resolve, reject) => {
-         const textUpdate = `saveReward?TrialidTXT=${parseInt(params.id)}&rewardtypeTXT=${rewardselect.value}&rewardpriceTXT=${Number(rewardprice.value.replace("$", ""))}&totalSpendingLimitTXT=${parseInt(totalspendlimit.value.replace("$", ""))}`
-         var waitUpdate = new Promise(async (resolve2, reject) => {
-            await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-               "headers": {
-                  "accept-language": "en-US,en;q=0.9",
-                  "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-               },
-               "body": null,
-               "method": "GET"
-            }).then(e => {
-               resolve(e.json)
-            })
-         });
-         await waitUpdate;
-      })
-      await done
-      console.log("done")
+      try {
+         await window.contract.contract.UpdateReward(Number(parseInt(params.id)),rewardselect.value,Number(rewardprice.value.replace("$", "")),parseInt(totalspendlimit.value.replace("$", ""))).send({
+            feeLimit: 1_000_000_000,
+            shouldPollResponse: false
+        });
+        
+         
+      } catch (error) {
+         
+      }
+  
       rewardsSave.disabled = false;
       rewardsSave.classList.add("hover:bg-gray-600")
       rewardsSave.classList.add("bg-black")
