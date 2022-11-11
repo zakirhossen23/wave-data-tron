@@ -19,27 +19,22 @@ export default function UpdateTrialModal({
         updateBTN.children[1].innerText = ""
         updateBTN.disabled = true;
         try {
-            await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/UpdateSurvey?idTXT=${encodeURIComponent(id)}&nameTXT=${encodeURIComponent(name.value)}&descriptionTXT=${encodeURIComponent(description.value)}&imageTXT=${encodeURIComponent(image.value)}&rewardTXT=${Number(reward.value)}`, {
-                "headers": {
-                    "accept-language": "en-US,en;q=0.9",
-                    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                },
-                "body": null,
-                "method": "GET"
-            }).then(e2 => {
-                notificationSuccess.style.display = "block";
-                updateBTN.children[0].classList.add("hidden")
-                updateBTN.children[1].innerText = "Update Survey"
-
-                updateBTN.disabled = false;
-            }).catch((error) => {
-                notificationError.style.display = "none";
-                updateBTN.children[0].classList.add("hidden");
-                updateBTN.children[1].innerText = "Update Survey";
-                updateBTN.disabled = false;
+            await window.contract.contract.UpdateSurvey(parseInt(id),name.value,description.value,image.value, Number(reward.value)).send({
+                feeLimit: 1_000_000_000,
+                shouldPollResponse: false
             });
-        } catch (error) {
+            notificationSuccess.style.display = "block";
+            updateBTN.children[0].classList.add("hidden")
+            updateBTN.children[1].innerText = "Update Survey"
 
+            updateBTN.disabled = false;
+            window.location.reload();
+
+        } catch (error) {
+            notificationError.style.display = "none";
+            updateBTN.children[0].classList.add("hidden");
+            updateBTN.children[1].innerText = "Update Survey";
+            updateBTN.disabled = false;
         }
         updateBTN.children[0].classList.add("hidden")
         updateBTN.children[1].innerText = "Update Survey";

@@ -14,6 +14,7 @@ function TrialDetails() {
    const [tabIndex, setTabIndex] = useState(0);
    const [UpdatemodalShow, setModalShow] = useState(false);
    const [CreateSurveymodalShow, setSurveyModalShow] = useState(false);
+   const [Loading, setLoading] = useState(true);
 
    const [audiences, setAudiences] = useState([
       {
@@ -35,9 +36,12 @@ function TrialDetails() {
       let useContract = await import("../contract/useContract.ts");
       contract = await useContract.default();
       window.contract = contract;
-      LoadData()
+      setLoading(true);
+      LoadData();
+      await LoadDataSurvey();
+      setLoading(false);
    }
-   window.onload= ()=>{ getContract();}
+   window.onload = () => { getContract(); }
 
    const TABS = [
       {
@@ -262,7 +266,7 @@ function TrialDetails() {
             image: trial_element.image,
             description: trial_element.description,
             contributors: Number(trial_element.contributors),
-            audience:Number( trial_element.audience),
+            audience: Number(trial_element.audience),
             budget: Number(trial_element.budget)
          };
          setTRIAL_DATA(newTrial);
@@ -271,23 +275,22 @@ function TrialDetails() {
    }
    async function LoadDataSurvey() {
       setData([])
-      sleep(10)
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/SelectSurveyByTrialid?TrialidTXT=${parseInt(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(element => {
+      for (let i = 0; i < Number(await window.contract.contract._SurveyIds().call()); i++) {
+         let survey_element = await window.contract.contract._surveyMap(i).call();
+         var new_survey = {
+            id: Number(survey_element.survey_id),
+            trial_id: Number(survey_element.trial_id),
+            user_id: Number(survey_element.user_id),
+            name: survey_element.name,
+            description: survey_element.description,
+            date: survey_element.date,
+            image: survey_element.image,
+            reward: Number(survey_element.reward),
+            submission: Number(survey_element?.submission)
+         };
+         setData(prevState => [...prevState, new_survey]);
+      }
 
-            setData(prevState => [...prevState, element.attributes]);
-         });
-         console.log(data)
-      })
    }
 
    async function LoadAudiences() {
@@ -314,24 +317,16 @@ function TrialDetails() {
    }
    async function LoadRewards() {
       setREWARD_DATA({})
-      var done = new Promise(async (resolve, reject) => {
-       await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetRewards?idTXT=${parseInt(params.id)}`, {
-            "headers": {
-               "accept-language": "en-US,en;q=0.9",
-               "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-         }).then(e => {
-            return e.json();
-         }).then(e => {
-            setREWARD_DATA(e.results[0]['(SV)'][0].attributes);
-            console.log("Rewards =>", REWARD_DATA)
-             resolve(REWARD_DATA);
-         })
-      })
-      await done
-     
+
+      let reward_element = await window.contract.contract._trialRewardMap(parseInt(params.id)).call();
+      var new_reward = {
+         trial_id: Number(reward_element.trial_id),
+         reward_type: reward_element.reward_type,
+         reward_price: Number(reward_element.reward_price),
+         total_spending_limit: Number(reward_element.total_spending_limit)
+      };
+      setREWARD_DATA(new_reward);
+
    }
    async function LoadDataContributors() {
       setContributors([])
@@ -430,13 +425,13 @@ function TrialDetails() {
                const ACTIVE = index === tabIndex;
 
                return (
-                  <>
+                  <div key={index} >
                      <div className="self-stretch w-[1px] bg-gray-400" />
                      <button key={id} onClick={() => setTabIndex(index)} className={`flex items-center h-14 p-4 ${ACTIVE ? 'bg-gray-100' : 'bg-white'}`}>
                         <p className={`${ACTIVE ? 'text-orange-500' : 'text-black'} font-medium`}>{title}</p>
                      </button>
                      {IS_LAST && <div className="self-stretch w-[1px] bg-gray-400" />}
-                  </>
+                  </div>
                );
             })}
          </div>
@@ -461,28 +456,37 @@ function TrialDetails() {
                      </tr>
                   </thead>
                   <tbody>
-                     {data.map(({ id, name, question, reward, submission, Lastsubmission, image }, index) => {
-                        const IS_LAST = index === data.length - 1;
-                        return (
-                           <tr className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
-                              <td className="py-3 px-3">
-                                 <div style={{ display: "flex", alignItems: "center" }}>
-                                    <img src={image} style={{ width: 50, height: 50, borderRadius: 5 }} />
-                                    <span style={{ paddingLeft: 15 }}>{name}</span>
-                                 </div>
-                              </td>
-                              <td className="py-3 px-3">{question}</td>
-                              <td className="py-3 px-3">{`$${reward}`}</td>
-                              <td className="py-3 px-3">{`${submission}/24`}</td>
-                              <td className="py-3 px-3">{Lastsubmission ? formatDistance(new Date(Lastsubmission), new Date(), { addSuffix: true }) : '-'}</td>
-                              <td className="flex justify-end py-3">
-                                 <button onClick={() => navigate(`/trials/${TRIAL_DATA.id}/survey/${id}`, { state: { trialID: TRIAL_DATA.id } })} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
-                                    <ArrowRightIcon className="w-5 h-5 text-gray-400 " />
-                                 </button>
-                              </td>
-                           </tr>
-                        );
-                     })}
+                     {data.length !== 0 ? (<>
+                        {data.map(({ id, name, description, reward, submission, date, image }, index) => {
+                           const IS_LAST = index === data.length - 1;
+                           return (
+                              <tr key={index} className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
+                                 <td className="py-3 px-3">
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                       <img src={image} style={{ width: 50, height: 50, borderRadius: 5 }} />
+                                       <span style={{ paddingLeft: 15 }}>{name}</span>
+                                    </div>
+                                 </td>
+                                 <td className="py-3 px-3">{description}</td>
+                                 <td className="py-3 px-3">{`$${reward}`}</td>
+                                 <td className="py-3 px-3">{`${Number(submission)}/24`}</td>
+                                 <td className="py-3 px-3">{date && !isNaN((new Date(date)).getTime()) ? formatDistance(new Date(date), new Date(), { addSuffix: true }) : '-'}</td>
+                                 <td className="flex justify-end py-3">
+                                    <button onClick={() => navigate(`/trials/${TRIAL_DATA.id}/survey/${id}`, { state: { trialID: TRIAL_DATA.id } })} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                                       <ArrowRightIcon className="w-5 h-5 text-gray-400 " />
+                                    </button>
+                                 </td>
+                              </tr>
+                           );
+                        })}
+                     </>) : (Loading == true ? (
+                     <tr>
+                        <td colspan={6}>
+                        <p className="alert alert-info font-semibold text-3xl text-center">Loading...</p>
+                        </td>
+                     </tr >
+                     ) : (<tr > <td colspan={6}><p className="alert alert-info font-semibold text-3xl text-center">No Surveys</p></td></tr >))
+                     }
                   </tbody>
                </table>
             </div>
@@ -543,12 +547,12 @@ function TrialDetails() {
                      <div>
                         <h4 >Reward per survey</h4>
                         <div className="flex gap-8 items-center ">
-                           <select name='rewardselect'  defaultValue={REWARD_DATA.rewardtype ? (REWARD_DATA.rewardtype) : ("")} id='rewardselect' className="mt-1 h-10 px-2 rounded-md border border-gray-200 outline-none w-6/12">
+                           <select name='rewardselect' defaultValue={REWARD_DATA.reward_type ? (REWARD_DATA.reward_type) : ("")} id='rewardselect' className="mt-1 h-10 px-2 rounded-md border border-gray-200 outline-none w-6/12">
                               <option value="">Select a reward</option>
-                              <option  value="Cash">Cash</option>
+                              <option value="Cash">Cash</option>
                            </select>
                            <label className="flex flex-col font-semibold mt-1 w-6/12">
-                              <input type="text" defaultValue={REWARD_DATA.rewardprice ? (`$${REWARD_DATA.rewardprice}`) : ("$0")} id="rewardprice" name="rewardprice" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="$0" />
+                              <input type="text" defaultValue={REWARD_DATA.reward_price ? (`$${REWARD_DATA.reward_price}`) : ("$0")} id="rewardprice" name="rewardprice" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="$0" />
                            </label>
                         </div>
                      </div>
@@ -556,7 +560,7 @@ function TrialDetails() {
                         <h4 >Total spending limit</h4>
                         <div className="flex gap-8 justify-between items-center ">
                            <label style={{ width: '47%' }} className="flex flex-col font-semibold mt-1">
-                              <input type="text" defaultValue={REWARD_DATA.totalSpendingLimit ? (`$${REWARD_DATA.totalSpendingLimit}`) : ("$0")} id="totalspendlimit" name="totalspendlimit" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="$0" />
+                              <input type="text" defaultValue={REWARD_DATA.total_spending_limit ? (`$${REWARD_DATA.total_spending_limit}`) : ("$0")} id="totalspendlimit" name="totalspendlimit" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="$0" />
                            </label>
                            <button type="submit" id="rewardsSave" className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-600" >
                               <p className="text-white ml-1">Save</p>
@@ -590,7 +594,7 @@ function TrialDetails() {
                         {audiences.map((item, index) => {
                            const IS_LAST = index === audiences.length - 1;
                            return (
-                              <tr className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
+                              <tr key={index} className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
                                  <td className="flex py-3 px-3 items-center h-[72.5px]">{index + 1}</td>
                                  <td className="py-3 px-3">
                                     <input type="text" id="age-min" onChange={(e) => { audiences[index].AgeMin = e.target.value }} name="age-min" defaultValue={item.AgeMin} className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />

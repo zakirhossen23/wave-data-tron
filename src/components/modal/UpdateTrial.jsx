@@ -3,6 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { CurrencyDollarIcon } from "@heroicons/react/solid";
+import Cookies from 'js-cookie'
 
 export default function UpdateTrialModal({
     show,
@@ -18,28 +19,25 @@ export default function UpdateTrialModal({
         updateBTN.children[0].classList.remove("hidden")
         updateBTN.children[1].innerText = ""
         updateBTN.disabled = true;
+        
         try {
-            await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/UpdateTrial?idTXT=${id}&imageTXT=${encodeURIComponent(image.value)}&titleTXT=${encodeURIComponent(title.value)}&descriptionTXT=${encodeURIComponent(description.value)}&contributorsTXT=0&audienceTXT=0&budgetTXT=${budget.value}`, {
-                "headers": {
-                    "accept-language": "en-US,en;q=0.9",
-                    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                },
-                "body": null,
-                "method": "GET"
-            }).then(e2 => {
-                notificationSuccess.style.display = "block";
-                updateBTN.children[0].classList.add("hidden")
-                updateBTN.children[1].innerText = "Update Trial"
-
-                updateBTN.disabled = false;
-            }).catch((error) => {
-                notificationError.style.display = "none";
-                updateBTN.children[0].classList.add("hidden");
-                updateBTN.children[1].innerText = "Update Trial";
-                updateBTN.disabled = false;
+            await window.contract.contract.UpdateTrial(Number(id),image.value,title.value,description.value, parseInt(budget.value)).send({
+                feeLimit: 1_000_000_000,
+                shouldPollResponse: false
             });
-        } catch (error) {
+            notificationSuccess.style.display = "block";
+            updateBTN.children[0].classList.add("hidden")
+            updateBTN.children[1].innerText = "Update Trial"
 
+            updateBTN.disabled = false;
+            window.location.reload();
+
+        
+        } catch (error) {
+            notificationError.style.display = "none";
+            updateBTN.children[0].classList.add("hidden");
+            updateBTN.children[1].innerText = "Update Trial";
+            updateBTN.disabled = false;
         }
         updateBTN.children[0].classList.add("hidden")
         updateBTN.children[1].innerText = "Update Trial";
@@ -47,23 +45,22 @@ export default function UpdateTrialModal({
     }
 
     async function LoadData() {
-        
-        await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetTrial?idTXT=${parseInt(id)}`, {
-            "headers": {
-                "accept-language": "en-US,en;q=0.9",
-                "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-        }).then(e => {
-            return e.json();
-        }).then(e => {
-            document.getElementById("updatetitle").value=e.results[0]['(SV)'][0].attributes.title
-            document.getElementById("updatedescription").value=e.results[0]['(SV)'][0].attributes.description
-            document.getElementById("updateimage").value=e.results[0]['(SV)'][0].attributes.image
-            document.getElementById("updatebudget").value=e.results[0]['(SV)'][0].attributes.budget
-            
-        })
+        if (typeof window?.contract?.contract !== 'undefined') {
+        let trial_element = await window.contract.contract._trialMap(parseInt(id)).call();
+        var newTrial = {
+           id: Number(trial_element.trial_id),
+           title: trial_element.title,
+           image: trial_element.image,
+           description: trial_element.description,
+           contributors: Number(trial_element.contributors),
+           audience:Number( trial_element.audience),
+           budget: Number(trial_element.budget)
+        };
+        document.getElementById("updatetitle").value=newTrial.title
+        document.getElementById("updatedescription").value=newTrial.description
+        document.getElementById("updateimage").value=newTrial.image
+        document.getElementById("updatebudget").value=newTrial.budget
+    }
     }
 
 

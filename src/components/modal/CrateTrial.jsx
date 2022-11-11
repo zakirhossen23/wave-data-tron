@@ -40,6 +40,7 @@ export default function CreateTrialModal({
             image.value = "";
             budget.value = 0;
             createBTN.disabled = false;
+            window.location.reload();
         } catch (error) {
             console.error(error);
         }

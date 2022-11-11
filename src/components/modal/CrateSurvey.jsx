@@ -3,6 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { CurrencyDollarIcon } from "@heroicons/react/solid";
+import Cookies from 'js-cookie';
 
 export default function CreateSurveyModal({
     show,
@@ -22,30 +23,25 @@ export default function CreateSurveyModal({
         surveyBTN.children[1].innerText = ""
         surveyBTN.disabled = true;
         try {
-            await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurvey?nameTXT=${encodeURIComponent(name.value)}&descriptionTXT=${encodeURIComponent(description.value)}&dateTXT=${encodeURIComponent(d)}&imageTXT=${encodeURIComponent(image.value)}&RewardTXT=${Number(reward.value)}&TiralidTXT=${parseInt(Tiralid)}`, {
-                "headers": {
-                    "accept-language": "en-US,en;q=0.9",
-                    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                },
-                "body": null,
-                "method": "GET"
-            }).then(e2 => {
-                notificationSuccess.style.display = "block";
-                surveyBTN.children[0].classList.add("hidden")
-                surveyBTN.children[1].innerText = "Create Survey"
-                name.value = "";
-                description.value = "";
-                image.value = "";
-                reward.value = "";
-                surveyBTN.disabled = false;
-            }).catch((error) => {
-                notificationError.style.display = "none";
-                surveyBTN.children[0].classList.add("hidden");
-                surveyBTN.children[1].innerText = "Create Survey";
-                surveyBTN.disabled = false;
+            await window.contract.contract.CreateSurvey(parseInt(Tiralid),Number(Cookies.get("userid")),name.value,description.value,d,image.value, Number(reward.value)).send({
+                feeLimit: 1_000_000_000,
+                shouldPollResponse: false
             });
+           
+            notificationSuccess.style.display = "block";
+            surveyBTN.children[0].classList.add("hidden")
+            surveyBTN.children[1].innerText = "Create Survey"
+            name.value = "";
+            description.value = "";
+            image.value = "";
+            reward.value = "";
+            surveyBTN.disabled = false;       
+            window.location.reload(); 
         } catch (error) {
-
+            notificationError.style.display = "none";
+            surveyBTN.children[0].classList.add("hidden");
+            surveyBTN.children[1].innerText = "Create Survey";
+            surveyBTN.disabled = false;
         }
         surveyBTN.children[0].classList.add("hidden")
         surveyBTN.children[1].innerText = "Create Survey";

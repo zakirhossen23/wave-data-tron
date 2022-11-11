@@ -4,7 +4,7 @@ export default async function callContract() {
     const contract = { contract: null, signerAddress: null };
     try {
         if (window?.tronWeb?.defaultAddress?.base58 != false && window?.tronWeb?.defaultAddress?.base58 != undefined && window?.tronLink?.tronWeb !== false){
-            contract.contract =  await window?.tronWeb.contract().at('TPWCNLhR7pCzPHAVJTukGWuzyAakqXdxvr');
+            contract.contract =  await window?.tronWeb.contract().at('TBUxT4jHuSco1rU7EtJJYCLD7Ft1aJByN4');
             contract.signerAddress =  window?.tronWeb.defaultAddress.base58;
         }
 
