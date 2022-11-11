@@ -3,12 +3,15 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { CurrencyDollarIcon } from "@heroicons/react/solid";
+import Cookies from 'js-cookie'
 
 export default function CreateTrialModal({
     show,
     onHide
 
 }) {
+
+    
 
     async function CreateTrial(e) {
         e.preventDefault();
@@ -23,30 +26,22 @@ export default function CreateTrialModal({
             let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
             let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
             let dateTime = cDate + ' ' + cTime;
-            await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateTrial?imageTXT=${encodeURIComponent(image.value)}&titleTXT=${encodeURIComponent(title.value)}&descriptionTXT=${encodeURIComponent(description.value)}&contributorsTXT=0&audienceTXT=0&budgetTXT=${parseInt(budget.value)}&dateTXT=${encodeURIComponent(dateTime)}`, {
-                "headers": {
-                    "accept-language": "en-US,en;q=0.9",
-                    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                },
-                "body": null,
-                "method": "GET"
-            }).then(e2 => {
-                notificationSuccess.style.display = "block";
-                createBTN.children[0].classList.add("hidden")
-                createBTN.children[1].innerText = "Create Trial"
-                title.value = "";
-                description.value = "";
-                image.value = "";
 
-                createBTN.disabled = false;
-            }).catch((error) => {
-                notificationError.style.display = "none";
-                createBTN.children[0].classList.add("hidden");
-                createBTN.children[1].innerText = "Create Trial";
-                createBTN.disabled = false;
+            await window.contract.contract.CreateTrial(Number(Cookies.get("userid")),image.value,title.value,description.value, 0,0,parseInt(budget.value),dateTime).send({
+                feeLimit: 1_000_000_000,
+                shouldPollResponse: false
             });
+           
+            notificationSuccess.style.display = "block";
+            createBTN.children[0].classList.add("hidden")
+            createBTN.children[1].innerText = "Create Trial"
+            title.value = "";
+            description.value = "";
+            image.value = "";
+            budget.value = 0;
+            createBTN.disabled = false;
         } catch (error) {
-
+            console.error(error);
         }
         createBTN.children[0].classList.add("hidden")
         createBTN.children[1].innerText = "Create Trial";
