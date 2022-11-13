@@ -1,23 +1,13 @@
 import Cookies from 'js-cookie'
 import logoicon from '../assets/wave-data-logo.svg'
+import useContract from '../contract/useContract.ts'
 import { useNavigate } from "react-router-dom";
 function Register() {
     let navigate = useNavigate();
+    const { contract, signerAddress } = useContract();
 
-    let contract = { contract: null, signerAddress: null };
-    async function getContract() {
-        let useContract = await import("../contract/useContract.ts");
-        contract = await useContract.default();
-        window.contract = contract;
-    }
+    
 
-    window.onload = (e) => {
-        getContract();
-        if (Cookies.get("login") == "true") {
-            navigate("/trials", { replace: true });
-            window.location.href = "/trials";
-        }
-    };
     function loginLink() {
         navigate("/login", { replace: true });
     }
@@ -45,11 +35,9 @@ function Register() {
         }
 
         try {
-            if (typeof window?.contract?.contract !== 'undefined') {
-                await getContract();
-            }
-            if (await window.contract.contract.CheckEmail(emailTXT.value).call() === "False") {
-                await window.contract.contract.CreateAccount(FullNameTXT.value, emailTXT.value, passwordTXT.value).send({
+            if (contract !== null) {
+            if (await contract.CheckEmail(emailTXT.value).call() === "False") {
+                await contract.CreateAccount(FullNameTXT.value, emailTXT.value, passwordTXT.value).send({
                     feeLimit: 1_000_000_000,
                     shouldPollResponse: false
                 });
@@ -64,7 +52,7 @@ function Register() {
                 registerbutton.disabled = false;
                 return;
             }
-
+        }
 
         } catch (error) {
             LoadingICON.style.display = "none";
