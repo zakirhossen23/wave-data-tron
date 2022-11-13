@@ -1,17 +1,29 @@
-declare let window: any;
+import { useState, useEffect } from 'react';
 
-export default async function callContract() {
-    const contract = { contract: null, signerAddress: null };
-    try {
-        if (window?.tronWeb?.defaultAddress?.base58 != false && window?.tronWeb?.defaultAddress?.base58 != undefined && window?.tronLink?.tronWeb !== false){
-            contract.contract =  await window?.tronWeb.contract().at('TP5egwjizMi9DdGEkpYR8CfBaHv3mxenPn');
-            contract.signerAddress =  window?.tronWeb.defaultAddress.base58;
-        }
+declare let window;
+export default function useContract() {
+	const [contractInstance, setContractInstance] = useState({
+		contract: null,
+		signerAddress: null,
+	});
 
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const contract = { contract: null, signerAddress: null };
 
-    } catch (error) {
-        console.error(error);
-    }
-    return contract;
-} 
+				contract.contract =  await window?.tronWeb?.contract().at('TNAfabSEzagKrhsydKtNXEPSAqq5ZCYV5g');
 
+				contract.signerAddress =  window?.tronWeb?.defaultAddress?.base58;
+                window.contract = contract.contract;
+				setContractInstance(contract);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		fetchData();
+	}, []);
+
+	return contractInstance;
+}

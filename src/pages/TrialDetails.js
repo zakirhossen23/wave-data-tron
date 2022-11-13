@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowRightIcon, UserIcon, CurrencyDollarIcon, GlobeAltIcon, ChevronRightIcon, PlusSmIcon, TrashIcon, PencilIcon } from "@heroicons/react/solid";
 import { formatDistance } from 'date-fns'
 import Form from 'react-bootstrap/Form';
+import useContract from '../contract/useContract.ts'
 
 import CreateSurveyModal from '../components/modal/CrateSurvey'
 
@@ -14,7 +15,9 @@ function TrialDetails() {
    const [tabIndex, setTabIndex] = useState(0);
    const [UpdatemodalShow, setModalShow] = useState(false);
    const [CreateSurveymodalShow, setSurveyModalShow] = useState(false);
-   const [Loading, setLoading] = useState(true);
+   const [LoadingSurvey, setLoadingSurvey] = useState(true);
+   const { contract, signerAddress } = useContract();
+
 
    const [audiences, setAudiences] = useState([
       {
@@ -31,17 +34,6 @@ function TrialDetails() {
 
    const [TRIAL_DATA, setTRIAL_DATA] = useState({})
    const [REWARD_DATA, setREWARD_DATA] = useState({})
-   let contract = { contract: null, signerAddress: null };
-   async function getContract() {
-      let useContract = await import("../contract/useContract.ts");
-      contract = await useContract.default();
-      window.contract = contract;
-      setLoading(true);
-      LoadData();
-      await LoadDataSurvey();
-      setLoading(false);
-   }
-   window.onload = () => { getContract(); }
 
    const TABS = [
       {
@@ -136,23 +128,13 @@ function TrialDetails() {
 
    const addAudiance = async () => {
 
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateAudience?TrialidTXT=${(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => { return e.json() }).then(e2 => {
-
-         setAudiences(prevState => [...prevState, {
-            id: e2.results[0].ID,
-            ageMin: '',
-            ageMax: '',
-            race: '',
-            gender: '',
-         }])
-      })
+      setAudiences(prevState => [...prevState, {
+         id: 0,
+         ageMin: '',
+         ageMax: '',
+         race: '',
+         gender: '',
+      }])
 
    };
    async function UpdateAudiences(event) {
@@ -163,28 +145,20 @@ function TrialDetails() {
       audienceSave.classList.add("cursor-default")
 
       event.target.disabled = true;
-      var done = new Promise(async (resolve, reject) => {
-         await audiences.forEach(async (element) => {
-            const textUpdate = `updateAudience?idTXT=${parseInt(element.id)}&AgeMinTXT=${Number(element.AgeMin)}&AgeMaxTXT=${Number(element.AgeMax)}&RaceTXT=${encodeURIComponent(element.Race)}&GenderTXT=${encodeURIComponent(element.Gender)}`
-            var waitUpdate = new Promise(async (resolve2, reject) => {
-               await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-                  "headers": {
-                     "accept-language": "en-US,en;q=0.9",
-                     "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                  },
-                  "body": null,
-                  "method": "GET"
-               }).then(e => {
-                  resolve2(e.json)
-               })
-            });
-            await waitUpdate;
-         });
-         resolve(audiences);
-
-      })
-      await done
-      console.log("done")
+      const createdObject = []
+      await audiences.forEach(async (element) => {
+         createdObject.push({
+            id: parseInt(element.id),
+            AgeMin:  Number(element.AgeMin),
+            AgeMax:  Number(element.AgeMax),
+            Race: element.Race,
+            Gender: element.Gender
+         })
+      });
+      await contract.UpdateAudience(parseInt(params.id), JSON.stringify(createdObject)).send({
+         feeLimit: 1_000_000_000,
+         shouldPollResponse: false
+      });
       event.target.disabled = false;
       audienceSave.classList.add("hover:bg-gray-600")
       audienceSave.classList.add("bg-black")
@@ -203,16 +177,16 @@ function TrialDetails() {
 
       rewardsSave.disabled = true;
       try {
-         await window.contract.contract.UpdateReward(Number(parseInt(params.id)),rewardselect.value,Number(rewardprice.value.replace("$", "")),parseInt(totalspendlimit.value.replace("$", ""))).send({
+         await contract.UpdateReward(Number(parseInt(params.id)), rewardselect.value, Number(rewardprice.value.replace("$", "")), parseInt(totalspendlimit.value.replace("$", ""))).send({
             feeLimit: 1_000_000_000,
             shouldPollResponse: false
-        });
-        
-         
+         });
+
+
       } catch (error) {
-         
+
       }
-  
+
       rewardsSave.disabled = false;
       rewardsSave.classList.add("hover:bg-gray-600")
       rewardsSave.classList.add("bg-black")
@@ -250,9 +224,9 @@ function TrialDetails() {
       console.log("done")
    }
    async function LoadData() {
-      if (typeof window?.contract?.contract !== 'undefined') {
+      if (contract !== null) {
          setTRIAL_DATA({})
-         let trial_element = await window.contract.contract._trialMap(parseInt(params.id)).call();
+         let trial_element = await contract._trialMap(parseInt(params.id)).call();
          var newTrial = {
             id: Number(trial_element.trial_id),
             title: trial_element.title,
@@ -267,51 +241,60 @@ function TrialDetails() {
       }
    }
    async function LoadDataSurvey() {
-      setData([])
-      for (let i = 0; i < Number(await window.contract.contract._SurveyIds().call()); i++) {
-         let survey_element = await window.contract.contract._surveyMap(i).call();
-         var new_survey = {
-            id: Number(survey_element.survey_id),
-            trial_id: Number(survey_element.trial_id),
-            user_id: Number(survey_element.user_id),
-            name: survey_element.name,
-            description: survey_element.description,
-            date: survey_element.date,
-            image: survey_element.image,
-            reward: Number(survey_element.reward),
-            submission: Number(survey_element?.submission)
-         };
-         setData(prevState => [...prevState, new_survey]);
+      if (contract !== null) {
+         setLoadingSurvey(true);
+         setData([])
+         for (let i = 0; i < Number(await contract._SurveyIds().call()); i++) {
+            let survey_element = await contract._surveyMap(i).call();
+            var new_survey = {
+               id: Number(survey_element.survey_id),
+               trial_id: Number(survey_element.trial_id),
+               user_id: Number(survey_element.user_id),
+               name: survey_element.name,
+               description: survey_element.description,
+               date: survey_element.date,
+               image: survey_element.image,
+               reward: Number(survey_element.reward),
+               submission: Number(survey_element?.submission)
+            };
+            if (parseInt(params.id) == new_survey.trial_id)
+               setData(prevState => [...prevState, new_survey]);
+         }
+         setLoadingSurvey(false);
       }
 
    }
 
    async function LoadAudiences() {
+     if (contract !== null){
       setAudiences([])
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/LoadAudience?TrialidTXT=${parseInt(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(element => {
-            var NewAudience = {
-               "id": element.v_id,
-               ...element.attributes
-            }
-            setAudiences(prevState => [...prevState, NewAudience]);
-         });
-      })
-      console.log("Audiences =>", audiences)
+      let allAudiences =JSON.parse(await contract._trialAudienceMap(parseInt(params.id)).call());
+
+
+      // await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/LoadAudience?TrialidTXT=${parseInt(params.id)}`, {
+      //    "headers": {
+      //       "accept-language": "en-US,en;q=0.9",
+      //       "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
+      //    },
+      //    "body": null,
+      //    "method": "GET"
+      // }).then(e => {
+      //    return e.json();
+      // }).then(e => {
+      //    e.results[0].SV.forEach(element => {
+      //       var NewAudience = {
+      //          "id": element.v_id,
+      //          ...element.attributes
+      //       }
+      //       setAudiences(prevState => [...prevState, NewAudience]);
+      //    });
+      // })
+     }  
    }
    async function LoadRewards() {
       setREWARD_DATA({})
 
-      let reward_element = await window.contract.contract._trialRewardMap(parseInt(params.id)).call();
+      let reward_element = await contract._trialRewardMap(parseInt(params.id)).call();
       var new_reward = {
          trial_id: Number(reward_element.trial_id),
          reward_type: reward_element.reward_type,
@@ -362,14 +345,16 @@ function TrialDetails() {
 
    useEffect(async () => {
       LoadData();
-   }, [])
+      LoadDataSurvey();
+      LoadRewards();
+   }, [contract])
 
    useEffect(async () => {
       if (tabIndex == 0) {
          LoadDataSurvey();
-
       } else if (tabIndex == 2) {
-         LoadRewards()
+         LoadRewards();
+
          LoadAudiences();
       } else {
          LoadDataContributors();
@@ -472,12 +457,12 @@ function TrialDetails() {
                               </tr>
                            );
                         })}
-                     </>) : (Loading == true ? (
-                     <tr>
-                        <td colspan={6}>
-                        <p className="alert alert-info font-semibold text-3xl text-center">Loading...</p>
-                        </td>
-                     </tr >
+                     </>) : (LoadingSurvey == true ? (
+                        <tr>
+                           <td colspan={6}>
+                              <p className="alert alert-info font-semibold text-3xl text-center">Loading...</p>
+                           </td>
+                        </tr >
                      ) : (<tr > <td colspan={6}><p className="alert alert-info font-semibold text-3xl text-center">No Surveys</p></td></tr >))
                      }
                   </tbody>

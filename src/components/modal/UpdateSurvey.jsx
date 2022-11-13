@@ -19,7 +19,7 @@ export default function UpdateTrialModal({
         updateBTN.children[1].innerText = ""
         updateBTN.disabled = true;
         try {
-            await window.contract.contract.UpdateSurvey(parseInt(id),name.value,description.value,image.value, Number(reward.value)).send({
+            await window.contract.UpdateSurvey(parseInt(id),name.value,description.value,image.value, Number(reward.value)).send({
                 feeLimit: 1_000_000_000,
                 shouldPollResponse: false
             });

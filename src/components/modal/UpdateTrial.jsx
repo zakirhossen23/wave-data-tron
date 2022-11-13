@@ -21,7 +21,7 @@ export default function UpdateTrialModal({
         updateBTN.disabled = true;
         
         try {
-            await window.contract.contract.UpdateTrial(Number(id),image.value,title.value,description.value, parseInt(budget.value)).send({
+            await window.contract.UpdateTrial(Number(id),image.value,title.value,description.value, parseInt(budget.value)).send({
                 feeLimit: 1_000_000_000,
                 shouldPollResponse: false
             });
@@ -46,7 +46,7 @@ export default function UpdateTrialModal({
 
     async function LoadData() {
         if (typeof window?.contract?.contract !== 'undefined') {
-        let trial_element = await window.contract.contract._trialMap(parseInt(id)).call();
+        let trial_element = await window.contract._trialMap(parseInt(id)).call();
         var newTrial = {
            id: Number(trial_element.trial_id),
            title: trial_element.title,

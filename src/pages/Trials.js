@@ -1,6 +1,7 @@
 import { PlusSmIcon, ArrowRightIcon, UserIcon, CurrencyDollarIcon, GlobeAltIcon } from "@heroicons/react/solid";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useContract from '../contract/useContract.ts'
 import CreateTrialModal from '../components/modal/CrateTrial'
 
 let isLoadingData = false;
@@ -12,27 +13,15 @@ function Trials() {
    const addTrial = () => {
       setModalShow(true);
    };
-
-   let contract = { contract: null, signerAddress: null };
-   async function getContract() {
-      setLoading(true);
-      let useContract = await import("../contract/useContract.ts");
-      contract = await useContract.default();
-      window.contract = contract;
-      LoadData()
-   }
-   window.onload = () => { getContract(); }
+   const { contract, signerAddress } = useContract();
 
    async function LoadData() {
-      if (!isLoadingData) {
+      if (!isLoadingData && contract !== null) {
          isLoadingData = true;
          setLoading(true);
-         if (typeof window?.contract?.contract !== 'undefined') {
-            await getContract();
-         }
          setData([])
-         for (let i = 0; i < Number(await window.contract.contract._TrialIds().call()); i++) {
-            let trial_element = await window.contract.contract._trialMap(i).call();
+         for (let i = 0; i < Number(await contract._TrialIds().call()); i++) {
+            let trial_element = await contract._trialMap(i).call();
             var newTrial = {
                id: Number(trial_element.trial_id),
                title: trial_element.title,
@@ -51,6 +40,9 @@ function Trials() {
 
    }
 
+   useEffect(() => {
+      LoadData();
+   }, [contract])
 
    return (
       <>

@@ -1,25 +1,41 @@
 import Cookies from 'js-cookie'
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from 'react'
+import useContract from '../contract/useContract.ts'
 import logoicon from '../assets/wave-data-logo.svg'
 function Login() {
-      let navigate = useNavigate();
-      let contract = { contract: null, signerAddress: null };
-      async function getContract() {
-        let useContract = await import("../contract/useContract.ts");
-        contract = await useContract.default();
-        window.contract = contract;
-      }
-
+   let navigate = useNavigate(); 
+   const { contract, signerAddress } = useContract();
+   const [isTronConnected, setisTronConnected] = useState(false)
+  
    window.onload = (e) => {
-      getContract();
-      if (Cookies.get("login") == "true") {      
-         navigate("/trials",{replace:true});
+    
+      if (Cookies.get("login") == "true") {
+         navigate("/trials", { replace: true });
       }
+      setInterval(function () {
+         if (window?.tronWeb?.defaultAddress?.base58 !== false && window?.tronWeb?.defaultAddress?.base58 !== undefined) {
+            setisTronConnected(true);
+         } else {
+            setisTronConnected(false);
+         }
+      }, 1000)
+
    };
 
+
+
    function registerLink() {
-      navigate("/register",{replace:true});
+      navigate("/register", { replace: true });
    }
+
+   async function onClickConnect() {
+      await window.tronWeb.request({ method: 'tron_requestAccounts' });
+      if (window?.tronWeb?.defaultAddress?.base58 != null) {
+
+      }
+   }
+
    async function LoginClick(event) {
       event.target.disabled = true;
       var buttonTextBox = document.getElementById("buttonText");
@@ -41,20 +57,16 @@ function Login() {
          return;
       }
       try {
-         if (typeof window?.contract?.contract !== 'undefined'){
-            await getContract() ;
-         }
-         if (await window.contract.contract.CheckEmail(emailTXT.value).call() === "False"){
+         if (await contract.CheckEmail(emailTXT.value).call() === "False") {
             FailedNotification.innerText = "Email is not valid"
             FailedNotification.style.display = "block";
             buttonTextBox.style.display = "block";
             LoadingICON.style.display = "none";
             return;
          }
-         let userid = await window.contract.contract.CheckEmail(emailTXT.value).call()
+         let userid = await contract.CheckEmail(emailTXT.value).call()
 
-         if (userid !== "False")
-         {
+         if (userid !== "False") {
             LoadingICON.style.display = "none";
             buttonTextBox.style.display = "block";
             SuccessNotification.innerText = "Success!"
@@ -62,15 +74,15 @@ function Login() {
             //Login success
             Cookies.set("login", "true");
             Cookies.set("userid", userid);
-            navigate("/trials",{replace:true});
+            navigate("/trials", { replace: true });
             return;
-         }else{
+         } else {
             LoadingICON.style.display = "none";
             buttonTextBox.style.display = "block";
             FailedNotification.innerText = "Email/Password Incorrect"
             FailedNotification.style.display = "block";
          }
-       
+
       } catch (error) {
          LoadingICON.style.display = "none";
          buttonTextBox.style.display = "block";
@@ -88,7 +100,8 @@ function Login() {
             <img src={require('../assets/login-picture.png')} className="h-full" alt="WaveData Logo" />
          </div>
          <div className="bg-white flex-1 flex flex-col justify-center items-center">
-            <div className="pl-20 pr-20">
+            <div className="pl-20 pr-20 relative">
+               
                <img src={logoicon} className="w-3/4 mx-auto" alt="WaveData Logo" />
                <h1 className="text-4xl font-semibold mt-10">Your data is the cure.</h1>
                <p className="mt-3">By sharing data people can help finding the cure and be part of the solution.</p>
@@ -107,10 +120,17 @@ function Login() {
                      Password
                      <input type="password" id="password" name="password" className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />
                   </label>
-                  <button onClick={LoginClick} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
-                     <i id='LoadingICON' style={{ display: "none" }} className="select-none block w-min m-0 fa fa-circle-o-notch fa-spin"></i>
-                     <span id='buttonText'>Login</span>
-                  </button>
+                  {(isTronConnected) ? (<>
+                     <button onClick={LoginClick} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                        <i id='LoadingICON' style={{ display: "none" }} className="select-none block w-min m-0 fa fa-circle-o-notch fa-spin"></i>
+                        <span id='buttonText'>Login</span>
+                     </button>
+                  </>) : (<>
+                     <button onClick={onClickConnect} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                        <span id='buttonText'>Connect TronLink</span>
+                     </button>
+                  </>)}
+
 
                   <button onClick={registerLink} className="bg-gray-200 text-gray-500 rounded-md shadow-md h-10 w-full mt-3 hover:bg-black transition-colors">
                      Register

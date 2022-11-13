@@ -27,7 +27,7 @@ export default function CreateTrialModal({
             let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
             let dateTime = cDate + ' ' + cTime;
 
-            await window.contract.contract.CreateTrial(Number(Cookies.get("userid")),image.value,title.value,description.value, 0,0,parseInt(budget.value),dateTime).send({
+            await window.contract.CreateTrial(Number(Cookies.get("userid")),image.value,title.value,description.value, 0,0,parseInt(budget.value),dateTime).send({
                 feeLimit: 1_000_000_000,
                 shouldPollResponse: false
             });

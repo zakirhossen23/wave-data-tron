@@ -23,7 +23,7 @@ export default function CreateSurveyModal({
         surveyBTN.children[1].innerText = ""
         surveyBTN.disabled = true;
         try {
-            await window.contract.contract.CreateSurvey(parseInt(Tiralid),Number(Cookies.get("userid")),name.value,description.value,d,image.value, Number(reward.value)).send({
+            await window.contract.CreateSurvey(parseInt(Tiralid),Number(Cookies.get("userid")),name.value,description.value,d,image.value, Number(reward.value)).send({
                 feeLimit: 1_000_000_000,
                 shouldPollResponse: false
             });
