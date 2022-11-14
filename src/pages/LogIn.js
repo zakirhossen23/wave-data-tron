@@ -97,7 +97,7 @@ function Login() {
    return (
       <div className="min-h-screen grid-cols-2 flex">
          <div className="bg-blue-200 flex-1">
-            <img src={require('../assets/login-picture.png')} className="h-full" alt="WaveData Logo" />
+            <img src={require('../assets/login-picture.png')} className="h-full w-full" alt="WaveData Logo" />
          </div>
          <div className="bg-white flex-1 flex flex-col justify-center items-center">
             <div className="pl-20 pr-20 relative">
