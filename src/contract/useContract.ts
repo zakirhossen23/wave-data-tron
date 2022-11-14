@@ -6,13 +6,16 @@ export default function useContract() {
 		contract: null,
 		signerAddress: null,
 	});
-
+	function sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	 }
 	useEffect(() => {
 		const fetchData = async () => {
+			await(200);
 			try {
 				const contract = { contract: null, signerAddress: null };
 
-				contract.contract =  await window?.tronWeb?.contract().at('TNAfabSEzagKrhsydKtNXEPSAqq5ZCYV5g');
+				contract.contract =  await window?.tronWeb?.contract().at('TS1u5VjbwPUcLkyXMqrjr4BTxFi3498ePy');
 
 				contract.signerAddress =  window?.tronWeb?.defaultAddress?.base58;
                 window.contract = contract.contract;

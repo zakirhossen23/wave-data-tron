@@ -30,7 +30,17 @@ function SurveyDetails() {
          category: "",
          description: "",
          id: "",
-         surveyID: 0
+         questions: [
+            {
+               id : 0,
+               questiontype: "",
+               question: "",
+               questiontype2: "",
+               limited:[{
+                  answer: ""
+               }]
+            }
+         ]
       },
    ])
 
@@ -65,35 +75,27 @@ function SurveyDetails() {
    ];
 
    async function AddCategory(e) {
+
       setstatus("saving...")
       var BTN = e.currentTarget;
       BTN.disabled = true; BTN.classList.remove("hover:bg-white"); BTN.classList.remove("cursor-pointer");
       var categoryname = document.getElementsByName("categoryName")[0]
       var categoryimagelink = document.getElementsByName("imagelink")[0]
-      var Work = new Promise(async (resolve, reject) => {
-         const textwork = `createCategories?nameTXT=${categoryname.value}&imageTXT=${categoryimagelink.value}`;
-         await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textwork}`, {
-            "headers": {
-               "accept-language": "en-US,en;q=0.9",
-               "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-         }).then(e => {
-            setdataCategory(prevState => [...prevState, {
-               text: categoryname.value,
-               value: categoryname.value,
-               icon: <img className="w-6 h-6" src={categoryimagelink.value} />
-            }]);
-            categoryname.value = "";
-            categoryimagelink.value = "";
-            setstatus("saved!")
-            BTN.disabled = false; BTN.classList.add("hover:bg-white"); BTN.classList.add("cursor-pointer");
-            resolve(e.json)
-         })
-
+      await contract.CreateSurveyCategory(categoryname.value, categoryimagelink.value).send({
+         feeLimit: 1_000_000_000,
+         shouldPollResponse: false
       });
-      await Work
+
+      setdataCategory(prevState => [...prevState, {
+         text: categoryname.value,
+         value: categoryname.value,
+         icon: <img className="w-6 h-6" src={categoryimagelink.value} />
+      }]);
+      categoryname.value = "";
+      categoryimagelink.value = "";
+      setstatus("saved!")
+      BTN.disabled = false; BTN.classList.add("hover:bg-white"); BTN.classList.add("cursor-pointer");
+
    }
 
 
@@ -102,38 +104,29 @@ function SurveyDetails() {
       return new Promise(resolve => setTimeout(resolve, ms));
    }
    async function addSection(e) {
-      setstatus("saving...")
+      setstatus("adding...")
       var addSectionBTN = e.currentTarget;
       addSectionBTN.classList.remove("hover:bg-gray-600")
       addSectionBTN.classList.remove("bg-black")
       addSectionBTN.classList.add("bg-gray-400")
       addSectionBTN.classList.add("cursor-default")
       addSectionBTN.disabled = true;
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSection?SurveyidTXT=${(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => { return e.json() }).then(e2 => {
-         setsectionsdata(prevState => [...prevState, {
-            id: e2.results[0].ID,
-            category: ""
-         }]);
-         addSectionBTN.classList.add("hover:bg-gray-600")
-         addSectionBTN.classList.add("bg-black")
-         addSectionBTN.classList.remove("bg-gray-400")
-         addSectionBTN.classList.remove("cursor-default")
-         addSectionBTN.disabled = false;
-         setstatus("saved!")
-      })
+      setsectionsdata(prevState => [...prevState, {
+         id: sectionsdata.length,
+         category: ""
+      }]);
+      addSectionBTN.classList.add("hover:bg-gray-600")
+      addSectionBTN.classList.add("bg-black")
+      addSectionBTN.classList.remove("bg-gray-400")
+      addSectionBTN.classList.remove("cursor-default")
+      addSectionBTN.disabled = false;
+      setstatus("added!")
 
 
    };
 
    async function addQuestion(e) {
-      setstatus("saving...")
+      setstatus("adding...")
       var addQuestionBTN = e.currentTarget;
       let sectionsidTXT = e.currentTarget.getAttribute("sectionsid");
       addQuestionBTN.classList.remove("hover:bg-gray-600")
@@ -141,35 +134,22 @@ function SurveyDetails() {
       addQuestionBTN.classList.add("bg-gray-400")
       addQuestionBTN.classList.add("cursor-default")
       addQuestionBTN.disabled = true;
-
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateQuestion?sectionidTXT=${encodeURIComponent(sectionsidTXT)}&surveyID=${encodeURIComponent(params.id)}&trialidTXT=${parseInt(location.state.trialID)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => { return e.json() }).then(e2 => {
-
-         setsectionsQuestionsdata(prevState => [...prevState, {
-            id: e2.results[0].ID,
-            sectionid: sectionsidTXT,
-            questiontype: "rating",
-            surveyid: params.id,
-            question: "",
-            questiontype2: "1-5"
-         }]);
-         addQuestionBTN.classList.add("hover:bg-gray-600")
-         addQuestionBTN.classList.add("bg-black")
-         addQuestionBTN.classList.remove("bg-gray-400")
-         addQuestionBTN.classList.remove("cursor-default")
+      setsectionsQuestionsdata(prevState => [...prevState, {
+         id: sectionsQuestionsdata.length,
+         sectionid: sectionsidTXT,
+         questiontype: "rating",
+         surveyid: params.id,
+         question: "",
+         questiontype2: "1-5"
+      }]);
+      addQuestionBTN.classList.add("hover:bg-gray-600")
+      addQuestionBTN.classList.add("bg-black")
+      addQuestionBTN.classList.remove("bg-gray-400")
+      addQuestionBTN.classList.remove("cursor-default")
 
 
-         addQuestionBTN.disabled = false;
-         setstatus("saved!")
-      }).catch(err => {
-         console.error(err)
-      })
+      addQuestionBTN.disabled = false;
+      setstatus("added!")
 
 
    };
@@ -255,6 +235,13 @@ function SurveyDetails() {
          setstatus("loaded!")
       })
    } async function LoadDataCategories() {
+      if (contract !== null){
+      // setdataCategory([])
+      sleep(100)
+
+
+         
+      }
       setstatus("loading...")
       setdataCategory([])
       sleep(100)
@@ -312,25 +299,17 @@ function SurveyDetails() {
       AddLimitedBTN.classList.add("cursor-default")
       AddLimitedBTN.disabled = true;
       let questionidTXT = item.id;
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateLimitedAnswer?questionidTXT=${encodeURIComponent(questionidTXT)}&surveyidTXT=${encodeURIComponent(params.id)}&sectionidTXT=${encodeURIComponent(item.sectionid)}&trialidTXT=${parseInt(location.state.trialID)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => { return e.json() }).then(e2 => {
-         setLimitedAnswerdata(prevState => [...prevState, {
-            id: e2.results[0].ID,
-            questionid: item.id,
-            answer: ""
-         }]);
-         AddLimitedBTN.classList.add("hover:bg-white")
-         AddLimitedBTN.classList.remove("bg-gray-300")
-         AddLimitedBTN.classList.remove("cursor-default")
-         AddLimitedBTN.disabled = false;
-         setstatus("saved!")
-      })
+
+      setLimitedAnswerdata(prevState => [...prevState, {
+         id: LimitedAnswerdata.length,
+         questionid: item.id,
+         answer: ""
+      }]);
+      AddLimitedBTN.classList.add("hover:bg-white")
+      AddLimitedBTN.classList.remove("bg-gray-300")
+      AddLimitedBTN.classList.remove("cursor-default")
+      AddLimitedBTN.disabled = false;
+      setstatus("saved!")
 
 
    }
@@ -594,51 +573,19 @@ function SurveyDetails() {
       sectionDeleteBTN.classList.add("cursor-pointer");
    }
    async function deleteQuestion(e) {
-      setstatus("saving...")
+      setstatus("deleting...")
       var DeleteQuestionBTN = e.currentTarget;
-      DeleteQuestionBTN.disabled = true; DeleteQuestionBTN.classList.remove("hover:bg-white"); DeleteQuestionBTN.classList.remove("cursor-pointer");
       let questionid = DeleteQuestionBTN.getAttribute("questionid")
-      var Delete = new Promise(async (resolve, reject) => {
-         const textDelete = `DeleteQuestion?idTXT=${encodeURIComponent(questionid)}`;
-         await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textDelete}`, {
-            "headers": {
-               "accept-language": "en-US,en;q=0.9",
-               "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-         }).then(e => {
-            setstatus("saved!")
-            resolve(e.json)
-         })
 
-      });
-      await Delete
       removeElementFromArrayBYID(sectionsQuestionsdata, questionid, setsectionsQuestionsdata)
+      setstatus("deleted!")
    }
    async function DeleteLimitedAnswer(e, item) {
-      setstatus("saving...")
+      setstatus("deleting...")
       var DeleteBTN = e.currentTarget;
-      DeleteBTN.disabled = true; DeleteBTN.classList.remove("hover:bg-white"); DeleteBTN.classList.remove("cursor-pointer");
       let id = item.id
-      let orderid = DeleteBTN.getAttribute("orderid")
-      var Delete = new Promise(async (resolve, reject) => {
-         const textDelete = `DeleteLimitedAnswerByID?idTXT=${encodeURIComponent(id)}`;
-         await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textDelete}`, {
-            "headers": {
-               "accept-language": "en-US,en;q=0.9",
-               "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-         }).then(e => {
-            setstatus("saved!")
-            resolve(e.json)
-         })
-
-      });
-      await Delete
       removeElementFromArrayBYID(LimitedAnswerdata, id, setLimitedAnswerdata)
+      setstatus("deleted!")
    }
 
    async function duplicateQuestion(e, item) {
@@ -646,6 +593,8 @@ function SurveyDetails() {
       var DuplicateBTN = e.currentTarget;
       DuplicateBTN.disabled = true; DuplicateBTN.classList.remove("hover:bg-white"); DuplicateBTN.classList.remove("cursor-pointer");
       let id = item.id
+
+
       var Duplicate = new Promise(async (resolve, reject) => {
          const textDelete = `DeleteLimitedAnswerByID?idTXT=${encodeURIComponent(id)}`;
          await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textDelete}`, {
@@ -692,26 +641,12 @@ function SurveyDetails() {
 
    //user is "finished typing," do something
    function doneTypingQuestion(e) {
-      setstatus("saving...")
       var inputbox = e.target;
+      let sectionid = inputbox.getAttribute("sectionid")
       let questionid = inputbox.getAttribute("questionid")
       let questionTXT = inputbox.value;
-      sectionsQuestionsdata.filter(e2 => { return e2.id == questionid })[0].question = questionTXT;
-      const textUpdate = `UpdateQuestion?idTXT=${encodeURIComponent(questionid)}&typeTXT=""&questionTXT=${encodeURIComponent(questionTXT)}&way=question`
-      fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         setstatus("saved!")
-         return e.json;
-
-      })
-
-      console.log("changed", e)
+      sectionsdata[sectionid].questions.filter(e2 => { return e2.id == questionid })[0].question = questionTXT;
+    
    }
 
    async function doneTypingDescription(e) {
@@ -1001,11 +936,10 @@ function SurveyDetails() {
                                  name={`category${sectindex}`}
                                  id={`category-select${sectindex}`}
                                  placeholder="Select Category"
-                                 onChange={(e) => { sectionsdata[index].category = e.value; updateSections() }}
+                                 onChange={(e) => { sectionsdata[index].category = e.value;  }}
                                  options={dataCategory}
                                  isSearchable={true}
                                  defaultValue={e => {
-                                    console.log("category", dataCategory)
                                     return dataCategory.filter(element => element['value'] == sectionsdata[index].category)[0];
                                  }
                                  }
@@ -1028,12 +962,12 @@ function SurveyDetails() {
 
                            </div>
                         </div>
-                        {sectionsQuestionsdata.filter(e => { return e.sectionid == sectindex }).map((itemQuestions, index) => {
+                        { sectionsdata[index].questions.map((itemQuestions, indexQ) => {
                            return (
                               <div className="border-b border-b-gray-400 p-4">
                                  <div className="flex mb-2 items-center">
-                                    <p className="text-2xl font-semibold flex-1">{`Question ${index + 1}`}</p>
-                                    <button questionid={itemQuestions.id} questionidOrder={index} onClick={(e) => { deleteQuestion(e) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                                    <p className="text-2xl font-semibold flex-1">{`Question ${indexQ + 1}`}</p>
+                                    <button questionid={itemQuestions.id} questionidOrder={indexQ} onClick={(e) => { deleteQuestion(e) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
                                        <TrashIcon className="w-5 h-5 text-gray-400" />
                                     </button>
                                     <button onClick={(e) => { duplicateQuestion(e, itemQuestions) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center ml-1">
@@ -1044,10 +978,10 @@ function SurveyDetails() {
                                     startTyping(e);
                                  }} onChange={(e) => {
                                     startTyping(e);
-                                 }} defaultValue={itemQuestions.question} questionid={itemQuestions.id} className="border py-1 px-2 w-full" placeholder="What is your question?" />
+                                 }} defaultValue={itemQuestions.question} questionid={itemQuestions.id} sectionid={index} className="border py-1 px-2 w-full" placeholder="What is your question?" />
 
                                  <div className="flex flex-wrap mt-2">
-                                    <select name={`questiontype${index}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsQuestionsdata.filter(e2 => { return e2.id == itemQuestions.id })[0].questiontype = e.target.value; QustionsWithType(itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${index}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: "49%", "fontFamily": "FontAwesome" }}>
+                                    <select name={`questiontype${indexQ}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsQuestionsdata.filter(e2 => { return e2.id == itemQuestions.id })[0].questiontype = e.target.value; QustionsWithType(itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${indexQ}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: "49%", "fontFamily": "FontAwesome" }}>
                                        <option value="rating" className="fa-solid"> &#xf118; Rating question</option>
                                        <option value="yes/no">&#xf058; Yes/no question</option>
                                        <option value="limited">&#xf0c9; Limited question</option>

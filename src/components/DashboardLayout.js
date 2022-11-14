@@ -52,7 +52,7 @@ function DashboardLayout() {
             <div className="flex-1" />
             <div
                className="aspect-square w-full border-b border-b-gray-200 flex flex-col items-center justify-center hover:cursor-pointer"
-               onClick={() =>{Cookies.remove("login");window.location.href="/";} }
+               onClick={() =>{Cookies.remove("login");Cookies.remove("userid");window.location.href="/";} }
             >
                <ArrowCircleLeftIcon className="h-6 w-6" />
                <p className={`text-md`}>Log out</p>
