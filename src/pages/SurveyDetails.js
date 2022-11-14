@@ -4,7 +4,7 @@ import React from 'react';
 import Select from 'react-select';
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { PlusSmIcon, ChevronRightIcon, PencilIcon, TrashIcon, PlusIcon, DocumentDuplicateIcon } from "@heroicons/react/solid";
-import { PieChart, Pie, Tooltip } from 'recharts';
+import useContract from '../contract/useContract.ts'
 import axios from 'axios';
 import G6 from '@antv/g6';
 import UpdateSurveyModal from '../components/modal/UpdateSurvey'
@@ -22,12 +22,13 @@ function SurveyDetails() {
    const [SURVEY_DATA, setSURVEY_DATA] = useState({})
    const [UpdatemodalShow, setModalShow] = useState(false);
    const [status, setstatus] = useState("");
+   const { contract, signerAddress } = useContract();
 
 
    const [sectionsdata, setsectionsdata] = useState([
       {
          category: "",
-         description:"",
+         description: "",
          id: "",
          surveyID: 0
       },
@@ -149,7 +150,7 @@ function SurveyDetails() {
          "body": null,
          "method": "GET"
       }).then(e => { return e.json() }).then(e2 => {
-         
+
          setsectionsQuestionsdata(prevState => [...prevState, {
             id: e2.results[0].ID,
             sectionid: sectionsidTXT,
@@ -166,7 +167,7 @@ function SurveyDetails() {
 
          addQuestionBTN.disabled = false;
          setstatus("saved!")
-      }).catch(err=>{
+      }).catch(err => {
          console.error(err)
       })
 
@@ -174,39 +175,42 @@ function SurveyDetails() {
    };
 
    async function LoadDataTrial() {
-      setstatus("loading...")
-      setTRIAL_DATA({})
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetTrial?idTXT=${parseInt(location.state.trialID)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         setTRIAL_DATA(e.results[0]['(SV)'][0].attributes);
-         setstatus("loaded!")
-      })
+      if (contract !== null) {
+         setstatus("loading...")
+         setTRIAL_DATA({})
+         let trial_element = await contract._trialMap(parseInt(location.state.trialID)).call();
+         var newTrial = {
+            id: Number(trial_element.trial_id),
+            title: trial_element.title,
+            image: trial_element.image,
+            description: trial_element.description,
+            contributors: Number(trial_element.contributors),
+            audience: Number(trial_element.audience),
+            budget: Number(trial_element.budget)
+         };
+         setTRIAL_DATA(newTrial);
+         setstatus("loaded!");
+      }
+
+
    }
    async function LoadSurveyData() {
-      setstatus("loading...")
-      setSURVEY_DATA({})
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/SelectSurveyByID?idTXT=${encodeURIComponent(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         console.log(e.results[0]['(SV)'])
-         setSURVEY_DATA(e.results[0]['(SV)'][0].attributes);
-         setstatus("loaded!")
-      })
+      if (contract !== null) {
+         setstatus("loading...")
+         let survey_element = await contract._surveyMap(params.id).call();
+         var new_survey = {
+            id: Number(survey_element.survey_id),
+            trial_id: Number(survey_element.trial_id),
+            user_id: Number(survey_element.user_id),
+            name: survey_element.name,
+            description: survey_element.description,
+            date: survey_element.date,
+            image: survey_element.image,
+            reward: Number(survey_element.reward),
+            submission: Number(survey_element?.submission)
+         };
+      } setSURVEY_DATA(new_survey);
+      setstatus("loaded!")
    }
 
    async function LoadDataSections() {
@@ -267,7 +271,7 @@ function SurveyDetails() {
          e.results[0].SV.forEach(async element => {
             setdataCategory(prevState => [...prevState, {
                value: element.attributes['name'],
-               text: element.attributes['name'],            
+               text: element.attributes['name'],
                icon: <img className="w-6 h-6" src={element.attributes['image']} />
             }]);
          });
@@ -295,6 +299,10 @@ function SurveyDetails() {
       })
    }
 
+   useEffect(async () => {
+      LoadSurveyData();
+      LoadDataTrial();
+   }, [contract])
 
    async function AddLimitedAnswer(e, item) {
       setstatus("saving...")
@@ -354,7 +362,7 @@ function SurveyDetails() {
 
    }
 
-   
+
    async function updateSectionsDescription() {
       setstatus("saving...")
       var done = new Promise(async (resolve, reject) => {
@@ -655,13 +663,13 @@ function SurveyDetails() {
       await Duplicate
    }
 
-   useEffect(async() => {
+   useEffect(async () => {
       LoadDataTrial();
-     await LoadDataCategories()
+      await LoadDataCategories()
       LoadSurveyData()
       LoadDataSections();
       LoadDataQuestions()
-   
+
       LoadDataLimitedAnswers()
 
    }, [])
@@ -688,7 +696,7 @@ function SurveyDetails() {
       var inputbox = e.target;
       let questionid = inputbox.getAttribute("questionid")
       let questionTXT = inputbox.value;
-      sectionsQuestionsdata.filter(e2 => { return e2.id == questionid })[0].question = questionTXT; 
+      sectionsQuestionsdata.filter(e2 => { return e2.id == questionid })[0].question = questionTXT;
       const textUpdate = `UpdateQuestion?idTXT=${encodeURIComponent(questionid)}&typeTXT=""&questionTXT=${encodeURIComponent(questionTXT)}&way=question`
       fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
          "headers": {
@@ -996,11 +1004,11 @@ function SurveyDetails() {
                                  onChange={(e) => { sectionsdata[index].category = e.value; updateSections() }}
                                  options={dataCategory}
                                  isSearchable={true}
-                                 defaultValue={e=>{
-                                    console.log("category",dataCategory)
-                                    return dataCategory.filter(element => element['value']==sectionsdata[index].category)[0];
+                                 defaultValue={e => {
+                                    console.log("category", dataCategory)
+                                    return dataCategory.filter(element => element['value'] == sectionsdata[index].category)[0];
                                  }
-                                    }
+                                 }
                                  getOptionLabel={e => (
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                        {e.icon}
@@ -1016,7 +1024,7 @@ function SurveyDetails() {
                            </div>
                            <div >
 
-                              <textarea className="border py-1 px-2 w-full" name="categoryName" onKeyUp={(e) => { sectionsdata[index].description = e.target.value; startTypingDescription(e) }} onChange={(e) => { sectionsdata[index].description = e.target.value; startTypingDescription(e) }}  sectionid={item.id} defaultValue={item.description} placeholder="Description" />
+                              <textarea className="border py-1 px-2 w-full" name="categoryName" onKeyUp={(e) => { sectionsdata[index].description = e.target.value; startTypingDescription(e) }} onChange={(e) => { sectionsdata[index].description = e.target.value; startTypingDescription(e) }} sectionid={item.id} defaultValue={item.description} placeholder="Description" />
 
                            </div>
                         </div>
@@ -1033,10 +1041,10 @@ function SurveyDetails() {
                                     </button>
                                  </div>
                                  <input type="text" onKeyUp={(e) => {
-                                      startTyping(e);
-                                      }} onChange={(e) => {
-                                       startTyping(e);
-                                       }} defaultValue={itemQuestions.question} questionid={itemQuestions.id}  className="border py-1 px-2 w-full" placeholder="What is your question?" />
+                                    startTyping(e);
+                                 }} onChange={(e) => {
+                                    startTyping(e);
+                                 }} defaultValue={itemQuestions.question} questionid={itemQuestions.id} className="border py-1 px-2 w-full" placeholder="What is your question?" />
 
                                  <div className="flex flex-wrap mt-2">
                                     <select name={`questiontype${index}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsQuestionsdata.filter(e2 => { return e2.id == itemQuestions.id })[0].questiontype = e.target.value; QustionsWithType(itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${index}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: "49%", "fontFamily": "FontAwesome" }}>

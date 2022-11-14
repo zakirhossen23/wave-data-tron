@@ -149,8 +149,8 @@ function TrialDetails() {
       await audiences.forEach(async (element) => {
          createdObject.push({
             id: parseInt(element.id),
-            AgeMin:  Number(element.AgeMin),
-            AgeMax:  Number(element.AgeMax),
+            AgeMin: Number(element.AgeMin),
+            AgeMax: Number(element.AgeMax),
             Race: element.Race,
             Gender: element.Gender
          })
@@ -266,42 +266,27 @@ function TrialDetails() {
    }
 
    async function LoadAudiences() {
-     if (contract !== null){
-      setAudiences([])
-      let allAudiences =JSON.parse(await contract._trialAudienceMap(parseInt(params.id)).call());
-
-
-      // await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/LoadAudience?TrialidTXT=${parseInt(params.id)}`, {
-      //    "headers": {
-      //       "accept-language": "en-US,en;q=0.9",
-      //       "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-      //    },
-      //    "body": null,
-      //    "method": "GET"
-      // }).then(e => {
-      //    return e.json();
-      // }).then(e => {
-      //    e.results[0].SV.forEach(element => {
-      //       var NewAudience = {
-      //          "id": element.v_id,
-      //          ...element.attributes
-      //       }
-      //       setAudiences(prevState => [...prevState, NewAudience]);
-      //    });
-      // })
-     }  
+      if (contract !== null) {
+         setAudiences([])
+         let allAudiences = JSON.parse(await contract._trialAudienceMap(parseInt(params.id)).call());
+         setAudiences(allAudiences);
+     
+      }
    }
    async function LoadRewards() {
-      setREWARD_DATA({})
+      if (contract !== null){
+         setREWARD_DATA({})
+   
+         let reward_element = await contract._trialRewardMap(parseInt(params.id)).call();
+         var new_reward = {
+            trial_id: Number(reward_element.trial_id),
+            reward_type: reward_element.reward_type,
+            reward_price: Number(reward_element.reward_price),
+            total_spending_limit: Number(reward_element.total_spending_limit)
+         };
+         setREWARD_DATA(new_reward);
 
-      let reward_element = await contract._trialRewardMap(parseInt(params.id)).call();
-      var new_reward = {
-         trial_id: Number(reward_element.trial_id),
-         reward_type: reward_element.reward_type,
-         reward_price: Number(reward_element.reward_price),
-         total_spending_limit: Number(reward_element.total_spending_limit)
-      };
-      setREWARD_DATA(new_reward);
+      }
 
    }
    async function LoadDataContributors() {

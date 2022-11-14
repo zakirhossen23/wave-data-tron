@@ -42,22 +42,25 @@ export default function UpdateTrialModal({
     }
 
     async function LoadData() {        
-        await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/SelectSurveyByID?idTXT=${encodeURIComponent(id)}`, {
-            "headers": {
-                "accept-language": "en-US,en;q=0.9",
-                "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-        }).then(e => {
-            return e.json();
-        }).then(e => {
-            document.getElementById("updatename").value=e.results[0]['(SV)'][0].attributes.name
-            document.getElementById("updatedescription").value=e.results[0]['(SV)'][0].attributes.description
-            document.getElementById("updateimage").value=e.results[0]['(SV)'][0].attributes.image
-            document.getElementById("reward").value=e.results[0]['(SV)'][0].attributes.reward
-         
-        })
+        if (typeof window?.contract !== 'undefined') {
+            let survey_element = await window.contract._surveyMap(id).call();
+            var new_survey = {
+               id: Number(survey_element.survey_id),
+               trial_id: Number(survey_element.trial_id),
+               user_id: Number(survey_element.user_id),
+               name: survey_element.name,
+               description: survey_element.description,
+               date: survey_element.date,
+               image: survey_element.image,
+               reward: Number(survey_element.reward),
+               submission: Number(survey_element?.submission)
+            };
+            document.getElementById("updatename").value=new_survey.name
+            document.getElementById("updatedescription").value=new_survey.description
+            document.getElementById("updateimage").value=new_survey.image
+            document.getElementById("reward").value=new_survey.reward
+
+        }
     }
 
 

@@ -45,7 +45,7 @@ export default function UpdateTrialModal({
     }
 
     async function LoadData() {
-        if (typeof window?.contract?.contract !== 'undefined') {
+        if (typeof window?.contract !== 'undefined') {
         let trial_element = await window.contract._trialMap(parseInt(id)).call();
         var newTrial = {
            id: Number(trial_element.trial_id),
