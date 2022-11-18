@@ -32,11 +32,11 @@ function SurveyDetails() {
          id: "",
          questions: [
             {
-               id : 0,
-               questiontype: "",
+               id: 0,
+               questiontype: "rating",
                question: "",
-               questiontype2: "",
-               limited:[{
+               questiontype2: "1-5",
+               limited: [{
                   answer: ""
                }]
             }
@@ -55,6 +55,7 @@ function SurveyDetails() {
          questiontype2: ""
       },
    ])
+   const [emptydata, setemptydata] = useState([])
 
    const [LimitedAnswerdata, setLimitedAnswerdata] = useState([
       {
@@ -112,9 +113,21 @@ function SurveyDetails() {
       addSectionBTN.classList.add("cursor-default")
       addSectionBTN.disabled = true;
       setsectionsdata(prevState => [...prevState, {
-         id: sectionsdata.length,
-         category: ""
-      }]);
+         category: "",
+         description: "",
+         id: "",
+         questions: [
+            {
+               id: 0,
+               questiontype: "rating",
+               question: "",
+               questiontype2: "1-5",
+               limited: [{
+                  answer: ""
+               }]
+            }
+         ]
+      },]);
       addSectionBTN.classList.add("hover:bg-gray-600")
       addSectionBTN.classList.add("bg-black")
       addSectionBTN.classList.remove("bg-gray-400")
@@ -125,7 +138,7 @@ function SurveyDetails() {
 
    };
 
-   async function addQuestion(e) {
+   async function addQuestion(e, index) {
       setstatus("adding...")
       var addQuestionBTN = e.currentTarget;
       let sectionsidTXT = e.currentTarget.getAttribute("sectionsid");
@@ -134,14 +147,19 @@ function SurveyDetails() {
       addQuestionBTN.classList.add("bg-gray-400")
       addQuestionBTN.classList.add("cursor-default")
       addQuestionBTN.disabled = true;
-      setsectionsQuestionsdata(prevState => [...prevState, {
-         id: sectionsQuestionsdata.length,
-         sectionid: sectionsidTXT,
-         questiontype: "rating",
-         surveyid: params.id,
-         question: "",
-         questiontype2: "1-5"
-      }]);
+
+      sectionsdata[index].questions.push(
+         {
+            id: sectionsdata[index].questions.length,
+            questiontype: "rating",
+            question: "",
+            questiontype2: "1-5",
+            limited: [{
+               answer: ""
+            }]
+         });
+      removeElementFromArrayBYID(emptydata, 0, setemptydata)
+
       addQuestionBTN.classList.add("hover:bg-gray-600")
       addQuestionBTN.classList.add("bg-black")
       addQuestionBTN.classList.remove("bg-gray-400")
@@ -153,7 +171,29 @@ function SurveyDetails() {
 
 
    };
+   async function SaveSection(e) {
+      setstatus("saving...")
+      var SaveBTN = e.currentTarget;
+      SaveBTN.classList.remove("hover:bg-gray-600")
+      SaveBTN.classList.remove("bg-black")
+      SaveBTN.classList.add("bg-gray-400")
+      SaveBTN.classList.add("cursor-default")
+      SaveBTN.disabled = true;
+      await contract.CreateOrSaveSections(SURVEY_DATA.id, JSON.stringify(sectionsdata)).send({
+         feeLimit: 1_000_000_000,
+         shouldPollResponse: false
+      });
+      SaveBTN.classList.add("hover:bg-gray-600")
+      SaveBTN.classList.add("bg-black")
+      SaveBTN.classList.remove("bg-gray-400")
+      SaveBTN.classList.remove("cursor-default")
 
+
+      SaveBTN.disabled = false;
+      setstatus("saved!")
+
+
+   };
    async function LoadDataTrial() {
       if (contract !== null) {
          setstatus("loading...")
@@ -194,25 +234,19 @@ function SurveyDetails() {
    }
 
    async function LoadDataSections() {
-      setstatus("loading...")
-      setsectionsdata([])
-      sleep(100)
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/LoadSection?surveyIDTXT=${encodeURIComponent(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(async element => {
-            setsectionsdata(prevState => [...prevState, element.attributes]);
-         });
+      if (contract !== null){
+         setstatus("loading...")
+         setsectionsdata([])
+         sleep(100)
+         let SectionsInfo = JSON.parse(await contract._sectionsMap(0).call());
+         setsectionsdata( SectionsInfo);
+   
+       
          Thisstate.sectionsloaded = true;
-         setstatus("loaded!")
-      })
+         setstatus("loaded!");
+      }
+     
+
    }
    async function LoadDataQuestions() {
       setstatus("loading...")
@@ -234,36 +268,25 @@ function SurveyDetails() {
          Thisstate.sectionsloaded = true;
          setstatus("loaded!")
       })
-   } async function LoadDataCategories() {
-      if (contract !== null){
-      // setdataCategory([])
-      sleep(100)
-
-
+   } 
+   async function LoadDataCategories() {
+      try {
+         
+         if (contract !== null) {
+            setdataCategory([])
+            sleep(100)
+            for (let i = 0; i < Number(await contract._SurveyCategoryIds().call()); i++) {
+               const element = await contract._categoryMap(i).call();
+               setdataCategory(prevState => [...prevState, {
+                  value: element.name,
+                  text: element.name,
+                  icon: <img className="w-6 h-6" src={element.image} />
+               }]);
+            }
+         }
+      } catch (error) {
          
       }
-      setstatus("loading...")
-      setdataCategory([])
-      sleep(100)
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetCategories`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(async element => {
-            setdataCategory(prevState => [...prevState, {
-               value: element.attributes['name'],
-               text: element.attributes['name'],
-               icon: <img className="w-6 h-6" src={element.attributes['image']} />
-            }]);
-         });
-         setstatus("loaded!")
-      })
    }
    async function LoadDataLimitedAnswers() {
       setstatus("loading...")
@@ -288,10 +311,12 @@ function SurveyDetails() {
 
    useEffect(async () => {
       LoadSurveyData();
-      LoadDataTrial();
+      LoadDataTrial();      
+      await LoadDataCategories();
+      LoadDataSections();
    }, [contract])
 
-   async function AddLimitedAnswer(e, item) {
+   async function AddLimitedAnswer(e, item, indexSect) {
       setstatus("saving...")
       var AddLimitedBTN = e.currentTarget;
       AddLimitedBTN.classList.remove("hover:bg-white")
@@ -299,12 +324,9 @@ function SurveyDetails() {
       AddLimitedBTN.classList.add("cursor-default")
       AddLimitedBTN.disabled = true;
       let questionidTXT = item.id;
+      sectionsdata[indexSect].questions[Number(questionidTXT)].limited.push({ answer: "" })
 
-      setLimitedAnswerdata(prevState => [...prevState, {
-         id: LimitedAnswerdata.length,
-         questionid: item.id,
-         answer: ""
-      }]);
+      removeElementFromArrayBYID(emptydata, 0, setemptydata);
       AddLimitedBTN.classList.add("hover:bg-white")
       AddLimitedBTN.classList.remove("bg-gray-300")
       AddLimitedBTN.classList.remove("cursor-default")
@@ -401,23 +423,23 @@ function SurveyDetails() {
    }
 
 
-   function RatingAnswer({ item }) {
+   function RatingAnswer({ item, index }) {
       return (<><div className="ml-4 bg-white" style={{ width: '48.7%' }} id={`AnswerType${item.id}`}>
-         <select id="testID" defaultValue={item.questiontype2} onChange={(e) => { sectionsQuestionsdata.filter(es => es.id == item.id)[0].questiontype2 = e.target.value; updateQuestionAnswerType(item.id, e.target.value) }} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ "width": "100%" }}>
+         <select id="testID" defaultValue={item.questiontype2} onChange={(e) => { sectionsdata[index].questions[item.id].questiontype2 = e.target.value; setsectionsdata(sectionsdata); }} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ "width": "100%" }}>
             <option value="1-3">Rating from 1 to 3</option>
             <option value="1-5">Rating from 1 to 5</option>
          </select>
       </div></>)
    }
 
-   function AnswerTypeJSX({ item }) {
-      function Allanswer({ item }) {
+   function AnswerTypeJSX({ item, indexSect }) {
+      function Allanswer({ item, indexSect }) {
          var all = []
-         LimitedAnswerdata.filter(e => { return e.questionid == item.id }).map((itemQuestions, index) => {
+         sectionsdata[indexSect].questions[item.id].limited.map((itemQuestions, index) => {
             all.push(<>
                <div style={{ display: "flex", width: "49%", alignItems: "center", fontSize: 19, justifyContent: "space-between" }} className="mt-3">
                   <span style={{ fontWeight: 700 }}>Answer {index + 1}</span>
-                  <input onKeyUp={(e) => { LimitedAnswerdata.filter(e2 => e2.id == itemQuestions.id)[0].answer = e.target.value; startTypingLimitedAnswers(e, itemQuestions) }} type="text" defaultValue={itemQuestions.answer} className="border py-1 px-2" placeholder="Answer" style={{ width: "69%" }} />
+                  <input onKeyUp={(e) => { sectionsdata[indexSect].questions[item.id].limited[index].answer = e.target.value; }} type="text" defaultValue={itemQuestions.answer} className="border py-1 px-2" placeholder="Answer" style={{ width: "69%" }} />
                   <button onClick={(e) => { DeleteLimitedAnswer(e, itemQuestions) }} orderid={index} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
                      <TrashIcon className="w-5 h-5" />
                   </button>
@@ -431,9 +453,9 @@ function SurveyDetails() {
       return (<>
          <div className="w-full ml-0" id={`AnswerType${item.id}`}>
             <div>
-               <Allanswer item={item} />
+               <Allanswer item={item} indexSect={indexSect} />
 
-               <button onClick={(e) => AddLimitedAnswer(e, item)} className="h-10 mt-3 rounded-md border-solid border bg-gray-100 flex py-2 px-4 items-center text-gray-700 hover:bg-white">
+               <button onClick={(e) => AddLimitedAnswer(e, item, indexSect)} className="h-10 mt-3 rounded-md border-solid border bg-gray-100 flex py-2 px-4 items-center text-gray-700 hover:bg-white">
                   <PlusSmIcon className="w-5 h-5 " />
                   <p className="ml-2"> Answer</p>
                </button>
@@ -442,17 +464,17 @@ function SurveyDetails() {
 
       </>)
    }
-   function QustionsWithType(questionid, itemQuestions, type) {
+   function QustionsWithType(item, questionid, itemQuestions, type) {
 
       var answerplace = document.getElementById(`AnswerType${questionid}`)
+      var sectionId = Number(item.getAttribute("sectionid"));
       try {
          ReactDOM.unmountComponentAtNode(answerplace)
       } catch (error) {
       }
 
-      sectionsQuestionsdata.filter((e) => { return e.id == questionid })[0].questiontype = type;
-
-      updateQuestionType(questionid, type);
+      sectionsdata[Number(item.getAttribute("sectionid"))].questions[questionid].questiontype = type;
+      setsectionsdata(sectionsdata);
       if (type === "rating") {
          answerplace.style = `width: 47.2%;`;
          answerplace.innerHTML = `
@@ -473,10 +495,10 @@ function SurveyDetails() {
             answerplace.style = `width: 100%;`;
          } catch (error) { }
 
-         sectionsQuestionsdata.filter((e) => { return e.id == questionid })[0].questiontype2 = ""
-         updateQuestionAnswerType(questionid, "")
+         sectionsdata[Number(item.getAttribute("sectionid"))].questions[questionid].questiontype2 = "";
+         setsectionsdata(sectionsdata);
          ReactDOM.render(
-            <AnswerTypeJSX item={itemQuestions} />,
+            <AnswerTypeJSX item={itemQuestions} indexSect={sectionId} />,
             answerplace
          );
       } else if (type === "open") {
@@ -614,12 +636,12 @@ function SurveyDetails() {
 
    useEffect(async () => {
       LoadDataTrial();
-      await LoadDataCategories()
+       LoadDataCategories()
       LoadSurveyData()
-      LoadDataSections();
-      LoadDataQuestions()
+      // LoadDataSections();
+      // LoadDataQuestions()
 
-      LoadDataLimitedAnswers()
+      // LoadDataLimitedAnswers()
 
    }, [])
    //setup before functions
@@ -646,7 +668,7 @@ function SurveyDetails() {
       let questionid = inputbox.getAttribute("questionid")
       let questionTXT = inputbox.value;
       sectionsdata[sectionid].questions.filter(e2 => { return e2.id == questionid })[0].question = questionTXT;
-    
+
    }
 
    async function doneTypingDescription(e) {
@@ -936,7 +958,7 @@ function SurveyDetails() {
                                  name={`category${sectindex}`}
                                  id={`category-select${sectindex}`}
                                  placeholder="Select Category"
-                                 onChange={(e) => { sectionsdata[index].category = e.value;  }}
+                                 onChange={(e) => { sectionsdata[index].category = e.value; setsectionsdata(sectionsdata); }}
                                  options={dataCategory}
                                  isSearchable={true}
                                  defaultValue={e => {
@@ -958,11 +980,11 @@ function SurveyDetails() {
                            </div>
                            <div >
 
-                              <textarea className="border py-1 px-2 w-full" name="categoryName" onKeyUp={(e) => { sectionsdata[index].description = e.target.value; startTypingDescription(e) }} onChange={(e) => { sectionsdata[index].description = e.target.value; startTypingDescription(e) }} sectionid={item.id} defaultValue={item.description} placeholder="Description" />
+                              <textarea className="border py-1 px-2 w-full" name="categoryName" onChange={(e) => { sectionsdata[index].description = e.target.value; removeElementFromArrayBYID(emptydata, 0, setemptydata); }} sectionid={item.id} defaultValue={item.description} placeholder="Description" />
 
                            </div>
                         </div>
-                        { sectionsdata[index].questions.map((itemQuestions, indexQ) => {
+                        {sectionsdata[index].questions.map((itemQuestions, indexQ) => {
                            return (
                               <div className="border-b border-b-gray-400 p-4">
                                  <div className="flex mb-2 items-center">
@@ -974,14 +996,12 @@ function SurveyDetails() {
                                        <DocumentDuplicateIcon className="w-5 h-5 text-gray-400" />
                                     </button>
                                  </div>
-                                 <input type="text" onKeyUp={(e) => {
-                                    startTyping(e);
-                                 }} onChange={(e) => {
-                                    startTyping(e);
+                                 <input type="text" onChange={(e) => {
+                                    sectionsdata[index].questions[indexQ].question = e.target.value; setsectionsdata(sectionsdata);
                                  }} defaultValue={itemQuestions.question} questionid={itemQuestions.id} sectionid={index} className="border py-1 px-2 w-full" placeholder="What is your question?" />
 
                                  <div className="flex flex-wrap mt-2">
-                                    <select name={`questiontype${indexQ}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsQuestionsdata.filter(e2 => { return e2.id == itemQuestions.id })[0].questiontype = e.target.value; QustionsWithType(itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${indexQ}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: "49%", "fontFamily": "FontAwesome" }}>
+                                    <select name={`questiontype${indexQ}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsdata[index].questions[indexQ].questiontype = e.target.value; removeElementFromArrayBYID(emptydata, 0, setemptydata); QustionsWithType(e.target, itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${indexQ}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: "49%", "fontFamily": "FontAwesome" }}>
                                        <option value="rating" className="fa-solid"> &#xf118; Rating question</option>
                                        <option value="yes/no">&#xf058; Yes/no question</option>
                                        <option value="limited">&#xf0c9; Limited question</option>
@@ -989,20 +1009,23 @@ function SurveyDetails() {
                                     </select>
 
                                     {(itemQuestions.questiontype === "rating") && (
-                                       <RatingAnswer item={itemQuestions} />
+                                       <RatingAnswer item={itemQuestions} index={index} />
                                     )}
                                     {(itemQuestions.questiontype === "limited") && (
-                                       <AnswerTypeJSX item={itemQuestions} />
+                                       <AnswerTypeJSX item={itemQuestions} indexSect={index} />
                                     )}
 
                                  </div>
                               </div>
                            );
                         })}
-                        <div className="p-4">
-                           <button sectionsid={sectindex} onClick={(e) => addQuestion(e)} className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-700 hover:text-gray-500">
+                        <div className="p-4 d-flex">
+                           <button sectionsid={sectindex} onClick={(e) => addQuestion(e, index)} className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-700 hover:text-gray-500">
                               <PlusSmIcon className="w-5 h-5" />
                               <p className=" ml-2">Question</p>
+                           </button>
+                           <button onClick={(e) => SaveSection(e)} className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-700 hover:text-gray-500">
+                              <p >Save</p>
                            </button>
                         </div>
                      </div>

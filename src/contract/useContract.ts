@@ -15,7 +15,7 @@ export default function useContract() {
 			try {
 				const contract = { contract: null, signerAddress: null };
 
-				contract.contract =  await window?.tronWeb?.contract().at('TRNwfptvAN4WR34msRGiGFHpkceX85BuDR');
+				contract.contract =  await window?.tronWeb?.contract().at('THYfBNgMyWhX2b7RmRfDKf3SPZgAwvFf5X');
 
 				contract.signerAddress =  window?.tronWeb?.defaultAddress?.base58;
                 window.contract = contract.contract;
