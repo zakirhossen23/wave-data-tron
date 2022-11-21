@@ -1,12 +1,13 @@
 import Cookies from 'js-cookie'
 import logoicon from '../assets/wave-data-logo.svg'
+import { useState, useEffect } from 'react'
 import useContract from '../contract/useContract.ts'
 import { useNavigate } from "react-router-dom";
+import './Register.css'
 function Register() {
     let navigate = useNavigate();
     const { contract, signerAddress } = useContract();
-
-    
+    const [isTronConnected, setisTronConnected] = useState(false);
 
     function loginLink() {
         navigate("/login", { replace: true });
@@ -36,23 +37,23 @@ function Register() {
 
         try {
             if (contract !== null) {
-            if (await contract.CheckEmail(emailTXT.value).call() === "False") {
-                await contract.CreateAccount(FullNameTXT.value, emailTXT.value, passwordTXT.value).send({
-                    feeLimit: 1_000_000_000,
-                    shouldPollResponse: false
-                });
-                SuccessNotification.style.display = "block";
-                window.location.href = "/login"
-            } else {
-                //Error
-                LoadingICON.style.display = "none";
-                buttonTextBox.style.display = "block";
-                FailedNotification.innerText = "Email already registered!"
-                FailedNotification.style.display = "block";
-                registerbutton.disabled = false;
-                return;
+                if (await contract.CheckEmail(emailTXT.value).call() === "False") {
+                    await contract.CreateAccount(FullNameTXT.value, emailTXT.value, passwordTXT.value).send({
+                        feeLimit: 1_000_000_000,
+                        shouldPollResponse: false
+                    });
+                    SuccessNotification.style.display = "block";
+                    window.location.href = "/login"
+                } else {
+                    //Error
+                    LoadingICON.style.display = "none";
+                    buttonTextBox.style.display = "block";
+                    FailedNotification.innerText = "Email already registered!"
+                    FailedNotification.style.display = "block";
+                    registerbutton.disabled = false;
+                    return;
+                }
             }
-        }
 
         } catch (error) {
             LoadingICON.style.display = "none";
@@ -63,15 +64,28 @@ function Register() {
 
         registerbutton.disabled = false;
     }
+
+    async function onClickConnect(type) {
+        if (type === 1) {
+            await window.tronWeb.request({ method: 'tron_requestAccounts' });
+            if (window?.tronWeb?.defaultAddress?.base58 != null) {
+                setisTronConnected(true);
+            } else {
+                setisTronConnected(false);
+            }
+        } else {
+            setisTronConnected(true);
+        }
+    }
     return (
         <div className="min-h-screen grid-cols-2 flex">
-            <div className="bg-blue-200 flex-1">
+            <div className="bg-blue-200 flex-1 img-panel">
                 <img src={require('../assets/login-picture.png')} className="h-full  w-full" alt="WaveData Logo" />
             </div>
             <div className="bg-white flex-1 flex flex-col justify-center items-center">
-                <div className="pl-20 pr-20">
+                <div className="pl-20 pr-20 container-panel">
                     <img src={logoicon} className="w-3/4 mx-auto" alt="WaveData Logo" />
-                    <h1 className="text-4xl font-semibold mt-10">Register your account</h1>
+                    <h1 className="text-4xl font-semibold mt-10 text-center">Register your account</h1>
                     <div id='notification-success' style={{ display: 'none' }} className="mt-4 text-center bg-gray-200 relative text-gray-500 py-3 px-3 rounded-lg">
                         Success!
                     </div>
@@ -95,10 +109,21 @@ function Register() {
                             Repeat password
                             <input type='password' name="confirm-password" required className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />
                         </label>
-                        <button id='registerBTN' onClick={RegisterAcc} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
-                            <i id='LoadingICON' style={{ display: "none" }} className="select-none block w-12 m-0 fa fa-circle-o-notch fa-spin"></i>
-                            <span id='buttonText'>Register</span>
-                        </button>
+                        {(isTronConnected) ? (<>
+                            <button id='registerBTN' onClick={RegisterAcc} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                                <i id='LoadingICON' style={{ display: "none" }} className="select-none block w-12 m-0 fa fa-circle-o-notch fa-spin"></i>
+                                <span id='buttonText'>Register</span>
+                            </button>
+
+                        </>) : (<>
+                            <button onClick={e=>{onClickConnect(1)}}  className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                                <span id='buttonText'>Connect TronLink</span>
+                            </button>
+                            <button onClick={e=>{onClickConnect(0)}}  className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                                <span id='buttonText'>Continue without TronLink</span>
+                            </button>
+                        </>)}
+
 
                         <button onClick={loginLink} className="bg-gray-200 text-gray-500 rounded-md shadow-md h-10 w-full mt-3 hover:bg-black hover:text-white transition-colors">
                             Login

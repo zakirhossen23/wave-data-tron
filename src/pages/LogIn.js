@@ -3,24 +3,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from 'react'
 import useContract from '../contract/useContract.ts'
 import logoicon from '../assets/wave-data-logo.svg'
+import './Login.css';
 function Login() {
-   let navigate = useNavigate(); 
-   const { contract, signerAddress } = useContract();
+   let navigate = useNavigate();
+   const { contract, signerAddress, fD } = useContract();
    const [isTronConnected, setisTronConnected] = useState(false)
-  
+
    window.onload = (e) => {
-    
+
       if (Cookies.get("login") == "true") {
          navigate("/trials", { replace: true });
       }
-      setInterval(function () {
-         if (window?.tronWeb?.defaultAddress?.base58 !== false && window?.tronWeb?.defaultAddress?.base58 !== undefined) {
-            setisTronConnected(true);
-         } else {
-            setisTronConnected(false);
-         }
-      }, 1000)
-
    };
 
 
@@ -29,10 +22,20 @@ function Login() {
       navigate("/register", { replace: true });
    }
 
-   async function onClickConnect() {
-      await window.tronWeb.request({ method: 'tron_requestAccounts' });
-      if (window?.tronWeb?.defaultAddress?.base58 != null) {
+   async function onClickConnect(type) {
+      if (type === 1){
+         await window.tronWeb.request({ method: 'tron_requestAccounts' });
+         if (window?.tronWeb?.defaultAddress?.base58 != null) {
+            setisTronConnected(true);
+         window.localStorage.setItem("type","trainlink")
 
+         }else{
+            setisTronConnected(false);
+         }
+      }else{
+         window.localStorage.setItem("type","non-trainlink")
+         await fD();
+         setisTronConnected(true);
       }
    }
 
@@ -96,14 +99,14 @@ function Login() {
 
    return (
       <div className="min-h-screen grid-cols-2 flex">
-         <div className="bg-blue-200 flex-1">
+         <div className="bg-blue-200 flex-1 img-panel">
             <img src={require('../assets/login-picture.png')} className="h-full w-full" alt="WaveData Logo" />
          </div>
          <div className="bg-white flex-1 flex flex-col justify-center items-center">
-            <div className="pl-20 pr-20 relative">
-               
+            <div className="pl-20 pr-20 relative container-panel">
+
                <img src={logoicon} className="w-3/4 mx-auto" alt="WaveData Logo" />
-               <h1 className="text-4xl font-semibold mt-10">Your data is the cure.</h1>
+               <h1 className="text-4xl font-semibold mt-10 text-center">Your data is the cure.</h1>
                <p className="mt-3">By sharing data people can help finding the cure and be part of the solution.</p>
                <div id='notification-success' style={{ display: 'none' }} className="mt-4 text-center bg-gray-200 relative text-gray-500 py-3 px-3 rounded-lg">
                   Success!
@@ -126,8 +129,11 @@ function Login() {
                         <span id='buttonText'>Login</span>
                      </button>
                   </>) : (<>
-                     <button onClick={onClickConnect} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                     <button onClick={e=>{onClickConnect(1)}} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
                         <span id='buttonText'>Connect TronLink</span>
+                     </button>
+                     <button onClick={e=>{onClickConnect(0)}} className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                        <span id='buttonText'>Continue without TronLink</span>
                      </button>
                   </>)}
 
