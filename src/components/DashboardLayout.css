@@ -1,0 +1,29 @@
+@media only screen and (max-width: 800px) {
+    .bottomBar{
+        height: 5rem;
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        bottom: 0;
+        z-index: 5;
+        position: absolute;
+    }
+  }
+  @media only screen and (min-width: 800px) {
+    .bottomBar{
+        width: 128px;
+    }
+  }
+  
+
+  @media only screen and (max-width: 800px) {
+    .bottomIcon{
+        width: 16rem;
+    }
+  }
+  @media only screen and (min-width: 800px) {
+    .bottomIcon{
+        height: 160px;
+    }
+  }
+  

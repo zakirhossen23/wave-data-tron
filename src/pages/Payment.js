@@ -35,7 +35,7 @@ function Payment() {
          {tabIndex === 0 && (
             <div className="bg-white border border-gray-400 rounded-lg py-4 px-6 flex flex-col mt-4">
                <h2 className="m-0">Transactions</h2>
-               <table className="table-fixed">
+               <table className="table-responsive-xl">
                   <thead className="border-b border-b-gray-400">
                      <tr>
                         <th className="text-left font-normal py-3 px-3">Date</th>

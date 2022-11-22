@@ -478,7 +478,7 @@ function SurveyDetails() {
       if (type === "rating") {
          answerplace.style = `width: 47.2%;`;
          answerplace.innerHTML = `
-         <select class="h-10 px-1 rounded-md border border-gray-200 outline-none bg-white" style="width: 100%">
+         <select className="h-10 px-1 rounded-md border border-gray-200 outline-none bg-white" style="width: 100%">
          <option value="1-3">Rating from 1 to 3</option>
          <option value="1-5">Rating from 1 to 5</option>
          

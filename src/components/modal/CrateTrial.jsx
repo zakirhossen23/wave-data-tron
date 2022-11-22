@@ -95,7 +95,7 @@ export default function CreateTrialModal({
                         </div>
                     </Form.Group>
                     <div className="d-grid">
-                        <Button name="createBTN" type='submit' style={{ 'display': 'flex' }} className='w-3/12 h-12 flex justify-center items-center' variant='outline-dark' >
+                        <Button name="createBTN" type='submit' style={{ 'display': 'flex' }} className='w-[128px] h-12 flex justify-center items-center' variant='outline-dark' >
                             <i id='LoadingICON' name='LoadingICON' className="select-none block w-12 m-0 fa fa-circle-o-notch fa-spin hidden"></i>
                             <span id='buttonText'>Create Trial</span>
                         </Button>

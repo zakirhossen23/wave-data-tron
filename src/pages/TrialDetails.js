@@ -4,7 +4,7 @@ import { ArrowRightIcon, UserIcon, CurrencyDollarIcon, GlobeAltIcon, ChevronRigh
 import { formatDistance } from 'date-fns'
 import Form from 'react-bootstrap/Form';
 import useContract from '../contract/useContract.ts'
-
+import './TrialDetails.css'
 import CreateSurveyModal from '../components/modal/CrateSurvey'
 
 import UpdateTrialModal from '../components/modal/UpdateTrial'
@@ -15,9 +15,12 @@ function TrialDetails() {
    const [tabIndex, setTabIndex] = useState(0);
    const [UpdatemodalShow, setModalShow] = useState(false);
    const [CreateSurveymodalShow, setSurveyModalShow] = useState(false);
-   const [LoadingSurvey, setLoadingSurvey] = useState(true);
+   const [LoadingSurvey, setLoadingSurvey] = useState(false);
    const { contract, signerAddress } = useContract();
-
+   const [screenSize, getDimension] = useState({
+      dynamicWidth: window.innerWidth,
+      dynamicHeight: window.innerHeight
+   });
 
    const [audiences, setAudiences] = useState([
       {
@@ -242,25 +245,34 @@ function TrialDetails() {
    }
    async function LoadDataSurvey() {
       if (contract !== null) {
-         setLoadingSurvey(true);
-         setData([])
-         for (let i = 0; i < Number(await contract._SurveyIds().call()); i++) {
-            let survey_element = await contract._surveyMap(i).call();
-            var new_survey = {
-               id: Number(survey_element.survey_id),
-               trial_id: Number(survey_element.trial_id),
-               user_id: Number(survey_element.user_id),
-               name: survey_element.name,
-               description: survey_element.description,
-               date: survey_element.date,
-               image: survey_element.image,
-               reward: Number(survey_element.reward),
-               submission: Number(survey_element?.submission)
-            };
-            if (parseInt(params.id) == new_survey.trial_id)
-               setData(prevState => [...prevState, new_survey]);
+         if (!LoadingSurvey){
+            setLoadingSurvey(true);
+            setData([])
+            try{
+               for (let i = 0; i < Number(await contract._SurveyIds().call()); i++) {
+                  let survey_element = await contract._surveyMap(i).call();
+      
+                  var new_survey = {
+                     id: Number(survey_element.survey_id),
+                     trial_id: Number(survey_element.trial_id),
+                     user_id: Number(survey_element.user_id),
+                     name: survey_element.name,
+                     description: survey_element.description,
+                     date: survey_element.date,
+                     image: survey_element.image,
+                     reward: Number(survey_element.reward),
+                     submission: Number(survey_element?.submission)
+                  };
+                  if (parseInt(params.id) == new_survey.trial_id)
+                     setData(prevState => [...prevState, new_survey]);
+               }
+            }catch(ex){
+
+            }
+          
+            setLoadingSurvey(false);
          }
-         setLoadingSurvey(false);
+      
       }
 
    }
@@ -270,13 +282,13 @@ function TrialDetails() {
          setAudiences([])
          let allAudiences = JSON.parse(await contract._trialAudienceMap(parseInt(params.id)).call());
          setAudiences(allAudiences);
-     
+
       }
    }
    async function LoadRewards() {
-      if (contract !== null){
+      if (contract !== null) {
          setREWARD_DATA({})
-   
+
          let reward_element = await contract._trialRewardMap(parseInt(params.id)).call();
          var new_reward = {
             trial_id: Number(reward_element.trial_id),
@@ -329,6 +341,14 @@ function TrialDetails() {
    }
 
    useEffect(async () => {
+      const setDimension = () => {
+         getDimension({
+            dynamicWidth: window.innerWidth,
+            dynamicHeight: window.innerHeight
+         })
+      }
+
+      window.addEventListener('resize', setDimension);
       LoadData();
       LoadDataSurvey();
       LoadRewards();
@@ -347,7 +367,7 @@ function TrialDetails() {
    }, [tabIndex])
    return (
       <>
-         <div className="bg-white border border-gray-400 rounded-lg py-4 px-6 flex mb-2 items-center">
+         <div style={{ zoom: (screenSize.dynamicWidth < 760) ? (0.8) : (1) }} className="bg-white border border-gray-400 rounded-lg py-4 px-6 flex mb-2 items-center">
             <div onClick={() => navigate(-1)} className="flex items-center hover:cursor-pointer hover:underline decoration-gray-400">
                <p className="text-gray-400">Trials</p>
                <ChevronRightIcon className="mx-1 w-5 h-5 text-gray-400" />
@@ -357,32 +377,52 @@ function TrialDetails() {
             </div>
          </div>
          <div className={`bg-white border border-gray-400 rounded-lg overflow-hidden mb-2`}>
-            <div className="flex p-6">
-               <img src={TRIAL_DATA?.image} alt="Trial" className="object-cover max-w-xs" />
-               <div className="mx-8 flex-1">
-                  <p className="text-3xl font-semibold">{TRIAL_DATA?.title}</p>
-                  <p className="mt-6">{TRIAL_DATA?.description}</p>
+            {(screenSize.dynamicWidth < 760) ? (<>
+               <div className="container-Trial-Template">
+                  <div className="Title-Template"> <p className="font-semibold">{TRIAL_DATA?.title}</p></div>
+                  <div className="description-Template"> <p className="mt-6">{TRIAL_DATA?.description}</p></div>
+                  <div className="Image-Box"><img src={TRIAL_DATA?.image} alt="Trial" style={{ width: '8rem' }} className="object-cover" /></div>
+                  <div className="Next-Button">
+                     <button onClick={() => { setModalShow(true) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center">
+                        <PencilIcon className="w-5 h-5 text-gray-400" />
+                     </button></div>
                </div>
-               <button onClick={() => { setModalShow(true) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center">
-                  <PencilIcon className="w-5 h-5 text-gray-400" />
-               </button>
-            </div>
+            </>) : (<>
+               <div className="flex p-6">
+                  <img src={TRIAL_DATA?.image} alt="Trial" className="object-cover max-w-xs" />
+                  <div className="mx-8 flex-1">
+                     <p className="text-3xl font-semibold">{TRIAL_DATA?.title}</p>
+                     <p className="mt-6">{TRIAL_DATA?.description}</p>
+                  </div>
+                  <button onClick={() => { setModalShow(true) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center">
+                     <PencilIcon className="w-5 h-5 text-gray-400" />
+                  </button>
+               </div>
+
+            </>)}
+
             <div className="flex p-6 border-t border-t-gray-400 bg-gray-200">
                <div className="flex items-center">
                   <UserIcon className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.contributors} contributor(s)`}</p>
+                  {(screenSize.dynamicWidth > 760) ? (<>
+                     <p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.contributors} contributor(s)`}</p></>) :
+                     (<><p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.contributors}`}</p></>)}
                </div>
                <div className="flex items-center ml-6">
                   <GlobeAltIcon className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.audience} contributor(s)`}</p>
+                  {(screenSize.dynamicWidth > 760) ? (<>
+                     <p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.audience} contributor(s)`}</p></>) :
+                     (<><p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.audience}`}</p></>)}
                </div>
                <div className="flex items-center ml-6">
                   <CurrencyDollarIcon className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-500 font-semibold ml-1">{`Budget of $${TRIAL_DATA?.budget}`}</p>
+                  {(screenSize.dynamicWidth > 760) ? (<>
+                     <p className="text-gray-500 font-semibold ml-1">{`Budget of $${TRIAL_DATA?.budget}`}</p></>) :
+                     (<><p className="text-gray-500 font-semibold ml-1">{`$${TRIAL_DATA?.budget}`}</p></>)}
                </div>
             </div>
          </div>
-         <div className="bg-white border border-gray-400 rounded-lg flex mt-4 px-4">
+         <div className="bg-white border border-gray-400 rounded-lg flex mt-4">
             {TABS.map(({ id, title }, index) => {
                const IS_LAST = index === TABS.length - 1;
                const ACTIVE = index === tabIndex;
@@ -407,7 +447,7 @@ function TrialDetails() {
                      <p className="text-white ml-2">Survey</p>
                   </button>
                </div>
-               <table className="table-fixed">
+               <table className="table-responsive-xl">
                   <thead className="border-b border-b-gray-400">
                      <tr>
                         {TABLE_COLS.map(({ id, title }) => {
@@ -423,14 +463,14 @@ function TrialDetails() {
                         {data.map(({ id, name, description, reward, submission, date, image }, index) => {
                            const IS_LAST = index === data.length - 1;
                            return (
-                              <tr key={index} className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
+                              <tr key={id} className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
                                  <td className="py-3 px-3">
-                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                    <div style={{ display: 'flex',alignItems: 'center',flexDirection: 'column',zoom: '0.8',minWidth: '9rem' }}>
                                        <img src={image} style={{ width: 50, height: 50, borderRadius: 5 }} />
-                                       <span style={{ paddingLeft: 15 }}>{name}</span>
+                                       <span style={{ paddingLeft: 15 }}>{name.slice(0, 15)}</span>
                                     </div>
                                  </td>
-                                 <td className="py-3 px-3">{description}</td>
+                                 <td className="py-3 px-3" style={{minWidth: '20rem'}}>{description.slice(0, 100)}</td>
                                  <td className="py-3 px-3">{`$${reward}`}</td>
                                  <td className="py-3 px-3">{`${Number(submission)}/24`}</td>
                                  <td className="py-3 px-3">{date && !isNaN((new Date(date)).getTime()) ? formatDistance(new Date(date), new Date(), { addSuffix: true }) : '-'}</td>
@@ -442,16 +482,20 @@ function TrialDetails() {
                               </tr>
                            );
                         })}
-                     </>) : (LoadingSurvey == true ? (
+                     </>) :(screenSize.dynamicWidth > 760 )?((LoadingSurvey == true )? (
                         <tr>
-                           <td colspan={6}>
+                           <td colSpan={6}>
                               <p className="alert alert-info font-semibold text-3xl text-center">Loading...</p>
                            </td>
                         </tr >
-                     ) : (<tr > <td colspan={6}><p className="alert alert-info font-semibold text-3xl text-center">No Surveys</p></td></tr >))
+                     ) : (<tr > <td colSpan={6}><p className="alert alert-info font-semibold text-3xl text-center">No Surveys</p></td></tr >)):(<></>)
                      }
                   </tbody>
                </table>
+               {(screenSize.dynamicWidth < 760 && data.length === 0 )?(LoadingSurvey == true) ? (
+                  <p className="alert-info font-semibold text-center">Loading...</p>
+               ) : (<p className="alert-info font-semibold text-center">No Surveys</p>):(<></>)
+               }
             </div>
          )}
          {tabIndex === 1 && (
@@ -460,7 +504,7 @@ function TrialDetails() {
                   <h2 className="text-2xl font-semibold flex-1">Contributors</h2>
 
                </div>
-               <table className="table-fixed">
+               <table className="table-responsive-xl">
                   <thead className="border-b border-b-gray-400">
                      <tr>
                         {CONTRIBUTORs_COLS.map(({ id, title }) => {
@@ -541,7 +585,7 @@ function TrialDetails() {
                         <p className="text-white ml-2">Audience</p>
                      </button>
                   </div>
-                  <table className="table-fixed">
+                  <table className="table-responsive-xl">
                      <thead className="border-b border-b-gray-400">
                         <tr>
                            <th className="py-3 px-3">#</th>
@@ -560,12 +604,12 @@ function TrialDetails() {
                               <tr key={index} className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
                                  <td className="flex py-3 px-3 items-center h-[72.5px]">{index + 1}</td>
                                  <td className="py-3 px-3">
-                                    <input type="text" id="age-min" onChange={(e) => { audiences[index].AgeMin = e.target.value }} name="age-min" defaultValue={item.AgeMin} className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />
+                                    <input type="text"   style={{width: (screenSize.dynamicWidth < 760)?"7rem":"100%"}} id="age-min" onChange={(e) => { audiences[index].AgeMin = e.target.value }} name="age-min" defaultValue={item.AgeMin} className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />
                                  </td>
                                  <td className="py-3 px-3">
-                                    <input type="text" id="age-max" name="age-max" onChange={(e) => { audiences[index].AgeMax = e.target.value }} defaultValue={item.AgeMax} className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />
+                                    <input type="text"  style={{width: (screenSize.dynamicWidth < 760)?"7rem":"100%"}} id="age-max" name="age-max" onChange={(e) => { audiences[index].AgeMax = e.target.value }} defaultValue={item.AgeMax} className="mt-2 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400" />
                                  </td>
-                                 <td className="py-3 px-3">
+                                 <td className="py-3 px-3" style={{minWidth:'10rem'}}>
                                     <select name={`race${index}`} id={`race-select${index}`} onChange={(e) => { audiences[index].Race = e.target.value }} className="h-10 px-1 rounded-md border border-gray-200 outline-none w-full" defaultValue={item.Race}>
                                        <option value="">Select a race</option>
                                        <option value="asian">Asian</option>
@@ -577,7 +621,7 @@ function TrialDetails() {
                                        <option value="white">White</option>
                                     </select>
                                  </td>
-                                 <td className="py-3 px-3">
+                                 <td className="py-3 px-3" style={{minWidth:'10rem'}}>
                                     <select name={`gender${index}`} id={`gender-select${index}`} onChange={(e) => { audiences[index].Gender = e.target.value }} className="h-10 px-1 rounded-md border border-gray-200 outline-none w-full" defaultValue={item.Gender}>
                                        <option value="">Select a gender</option>
                                        <option value="male">Male</option>

@@ -2,7 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { BeakerIcon, UserGroupIcon, CurrencyDollarIcon, ArrowCircleLeftIcon } from '@heroicons/react/solid';
 import Cookies from 'js-cookie'
 import navicationIcon from '../assets/navigation-panel-logo.svg'
-
+import './DashboardLayout.css'
 function DashboardLayout() {
    let navigate = useNavigate();
    let location = useLocation();
@@ -31,8 +31,8 @@ function DashboardLayout() {
 
    return (
       <div className="h-screen flex overflow-hidden">
-         <div className="w-[128px] bg-white flex flex-col">
-           <div className="h-[160px] border-b border-b-gray-200 bg-gray-100 flex justify-center" >
+         <div className="bottomBar bg-white flex flex-col">
+           <div className="bottomIcon border-b border-b-gray-200 bg-gray-100 flex justify-center" >
               <img src={navicationIcon} className="h-full w-10"/>
            </div>
            {ROUTES.map(({id, IconComponent, title, route }) => {
