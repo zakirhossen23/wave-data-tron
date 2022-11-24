@@ -470,7 +470,7 @@ function TrialDetails() {
                                        <span style={{ paddingLeft: 15 }}>{name.slice(0, 15)}</span>
                                     </div>
                                  </td>
-                                 <td className="py-3 px-3" style={{minWidth: '20rem'}}>{description.slice(0, 100)}</td>
+                                 <td className="py-3 px-3" style={{minWidth: '20rem'}}>{description.slice(0, 100)}...</td>
                                  <td className="py-3 px-3">{`$${reward}`}</td>
                                  <td className="py-3 px-3">{`${Number(submission)}/24`}</td>
                                  <td className="py-3 px-3">{date && !isNaN((new Date(date)).getTime()) ? formatDistance(new Date(date), new Date(), { addSuffix: true }) : '-'}</td>

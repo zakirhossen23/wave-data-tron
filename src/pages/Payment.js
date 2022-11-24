@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-
+import useContract from '../contract/useContract.ts'
 function Payment() {
    const [tabIndex, setTabIndex] = useState(0);
+   const { contract, signerAddress } = useContract();
    const TABS = [
       {
          id: 'transactions',
@@ -12,6 +13,21 @@ function Payment() {
          title: 'Payment method',
       }
    ];
+   const [screenSize, getDimension] = useState({
+      dynamicWidth: window.innerWidth,
+      dynamicHeight: window.innerHeight
+   });
+
+   useEffect(async () => {
+      const setDimension = () => {
+         getDimension({
+            dynamicWidth: window.innerWidth,
+            dynamicHeight: window.innerHeight
+         })
+      }
+
+      window.addEventListener('resize', setDimension);
+   }, [contract])
 
 
    return (
@@ -56,7 +72,7 @@ function Payment() {
                      <input type="text" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="0000 0000 0000 0000" />
                   </label>
                </div>
-               <div className="flex items-center justify-between items-end" >
+               <div className={`flex items-center justify-between items-end ${screenSize.dynamicWidth < 800? "flex-wrap":""}`}>
                   <label className="flex flex-col font-semibold mt-1" style={{width: '30rem'}}>
                      CVV number
                      <input type="text" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="000" />

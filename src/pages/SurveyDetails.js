@@ -7,7 +7,8 @@ import { PlusSmIcon, ChevronRightIcon, PencilIcon, TrashIcon, PlusIcon, Document
 import useContract from '../contract/useContract.ts'
 import axios from 'axios';
 import G6 from '@antv/g6';
-import UpdateSurveyModal from '../components/modal/UpdateSurvey'
+import UpdateSurveyModal from '../components/modal/UpdateSurvey';
+import './SurveyDetails.css';
 function SurveyDetails() {
    var Thisstate = {
       sectionsloaded: false,
@@ -23,6 +24,11 @@ function SurveyDetails() {
    const [UpdatemodalShow, setModalShow] = useState(false);
    const [status, setstatus] = useState("");
    const { contract, signerAddress } = useContract();
+   const [screenSize, getDimension] = useState({
+      dynamicWidth: window.innerWidth,
+      dynamicHeight: window.innerHeight
+   });
+
 
 
    const [sectionsdata, setsectionsdata] = useState([
@@ -234,44 +240,23 @@ function SurveyDetails() {
    }
 
    async function LoadDataSections() {
-      if (contract !== null){
+      if (contract !== null) {
          setstatus("loading...")
          setsectionsdata([])
          sleep(100)
          let SectionsInfo = JSON.parse(await contract._sectionsMap(0).call());
-         setsectionsdata( SectionsInfo);
-   
-       
+         setsectionsdata(SectionsInfo);
+
+
          Thisstate.sectionsloaded = true;
          setstatus("loaded!");
       }
-     
+
 
    }
-   async function LoadDataQuestions() {
-      setstatus("loading...")
-      setsectionsQuestionsdata([])
-      sleep(100)
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/LoadQuestionBySurveyID?surveyIDTXT=${encodeURIComponent(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(async element => {
-            setsectionsQuestionsdata(prevState => [...prevState, element.attributes]);
-         });
-         Thisstate.sectionsloaded = true;
-         setstatus("loaded!")
-      })
-   } 
    async function LoadDataCategories() {
       try {
-         
+
          if (contract !== null) {
             setdataCategory([])
             sleep(100)
@@ -285,33 +270,20 @@ function SurveyDetails() {
             }
          }
       } catch (error) {
-         
+
       }
    }
-   async function LoadDataLimitedAnswers() {
-      setstatus("loading...")
-      setLimitedAnswerdata([])
-      sleep(100)
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/LoadLimitedAnswers?surveyIDTXT=${parseInt(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(async element => {
-            setLimitedAnswerdata(prevState => [...prevState, element.attributes]);
-         });
-         setstatus("loaded!")
-      })
-   }
-
    useEffect(async () => {
+      const setDimension = () => {
+         getDimension({
+            dynamicWidth: window.innerWidth,
+            dynamicHeight: window.innerHeight
+         })
+      }
+
+      window.addEventListener('resize', setDimension);
       LoadSurveyData();
-      LoadDataTrial();      
+      LoadDataTrial();
       await LoadDataCategories();
       LoadDataSections();
    }, [contract])
@@ -336,95 +308,8 @@ function SurveyDetails() {
 
    }
 
-   async function updateSections() {
-      setstatus("saving...")
-      var done = new Promise(async (resolve, reject) => {
-         await sectionsdata.forEach(async (element) => {
-            const textUpdate = `UpdateSection?idTXT=${encodeURIComponent(element.id)}&categoryTXT=${encodeURIComponent(element.category)}`
-            var waitUpdate = new Promise(async (resolve2, reject) => {
-               await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-                  "headers": {
-                     "accept-language": "en-US,en;q=0.9",
-                     "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                  },
-                  "body": null,
-                  "method": "GET"
-               }).then(e => {
-                  resolve2(e.json)
-                  setstatus("saved!")
-               })
-            });
-            await waitUpdate;
-         });
-         resolve(sectionsdata);
-
-      })
-      await done
-
-   }
-
-
-   async function updateSectionsDescription() {
-      setstatus("saving...")
-      var done = new Promise(async (resolve, reject) => {
-         await sectionsdata.forEach(async (element) => {
-            const textUpdate = `UpdateSectionDescription?idTXT=${encodeURIComponent(element.id)}&DescriptionTXT=${encodeURIComponent(element.description)}`
-            var waitUpdate = new Promise(async (resolve2, reject) => {
-               await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-                  "headers": {
-                     "accept-language": "en-US,en;q=0.9",
-                     "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                  },
-                  "body": null,
-                  "method": "GET"
-               }).then(e => {
-                  resolve2(e.json)
-                  setstatus("saved!")
-               })
-            });
-            await waitUpdate;
-         });
-         resolve(sectionsdata);
-
-      })
-      await done
-
-   }
-   async function updateQuestionType(idTXT, typeTXT) {
-      setstatus("saving...")
-      const textUpdate = `UpdateQuestion?idTXT=${encodeURIComponent(idTXT)}&typeTXT=${encodeURIComponent(typeTXT)}&questionTXT=""&way=type&questiontype2TXT=${encodeURIComponent()}`
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         setstatus("saved!")
-         return e.json;
-
-      })
-   }
-   async function updateQuestionAnswerType(idTXT, typeAnserTXT) {
-      setstatus("saving...")
-      const textUpdate = `UpdateQuestion?idTXT=${encodeURIComponent(idTXT)}&way=answertype&questiontype2TXT=${encodeURIComponent(typeAnserTXT)}`
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         setstatus("saved!")
-         return e.json;
-      })
-   }
-
-
    function RatingAnswer({ item, index }) {
-      return (<><div className="ml-4 bg-white" style={{ width: '48.7%' }} id={`AnswerType${item.id}`}>
+      return (<><div className={`bg-white ${screenSize.dynamicWidth < 800 ? "" : ""}`} style={{ width: screenSize.dynamicWidth < 800 ? "100%" : "49%" }} id={`AnswerType${item.id}`}>
          <select id="testID" defaultValue={item.questiontype2} onChange={(e) => { sectionsdata[index].questions[item.id].questiontype2 = e.target.value; setsectionsdata(sectionsdata); }} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ "width": "100%" }}>
             <option value="1-3">Rating from 1 to 3</option>
             <option value="1-5">Rating from 1 to 5</option>
@@ -437,10 +322,10 @@ function SurveyDetails() {
          var all = []
          sectionsdata[indexSect].questions[item.id].limited.map((itemQuestions, index) => {
             all.push(<>
-               <div style={{ display: "flex", width: "49%", alignItems: "center", fontSize: 19, justifyContent: "space-between" }} className="mt-3">
-                  <span style={{ fontWeight: 700 }}>Answer {index + 1}</span>
+               <div style={{ display: "flex", width: screenSize.dynamicWidth < 800 ? "100%" : "49%", alignItems: "center", fontSize: 19, justifyContent: "space-between" }} className="mt-3">
+                  <span style={{ fontWeight: 700, minWidth: 'fit-content', }} className="mr-2">Answer {index + 1}</span>
                   <input onKeyUp={(e) => { sectionsdata[indexSect].questions[item.id].limited[index].answer = e.target.value; }} type="text" defaultValue={itemQuestions.answer} className="border py-1 px-2" placeholder="Answer" style={{ width: "69%" }} />
-                  <button onClick={(e) => { DeleteLimitedAnswer(e, itemQuestions) }} orderid={index} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                  <button onClick={(e) => { DeleteLimitedAnswer(indexSect, item.id, index) }} orderid={index} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
                      <TrashIcon className="w-5 h-5" />
                   </button>
                </div>
@@ -564,6 +449,118 @@ function SurveyDetails() {
 
       console.log("done")
    }
+   async function removeElementFromSectionBYIndex( specificid, type = "section", args={}) {
+      var storing = [];
+      if (type === "section") {
+         for (let index = 0; index < sectionsdata.length; index++) {
+            const element = sectionsdata[index];
+            if (element.id == specificid) {
+               continue
+            }
+            storing.push(element)
+         }
+         setsectionsdata(storing);
+         return;
+      }
+      if (type==="question"){
+         /*
+         args = {
+            indexSect : 0
+         }
+         */
+         for (let index = 0; index < sectionsdata[args.indexSect].questions.length; index++) {
+            const element = sectionsdata[args.indexSect].questions[index];
+            if (index == specificid) {
+               continue
+            }
+            storing.push(element)
+         }
+         sectionsdata[args.indexSect].questions = storing;
+         return;
+      }
+      if (type === "LimitedQuestions"){
+         /*
+         args = {
+            indexSect : 0,
+            indexQuestion : 0
+         }
+         */
+         for (let index = 0; index < sectionsdata[args.indexSect].questions[args.indexQuestion].limited.length; index++) {
+            const element = sectionsdata[args.indexSect].questions[args.indexQuestion].limited[index];
+            if (index == specificid) {
+               continue
+            }
+            storing.push(element)
+         }
+         sectionsdata[args.indexSect].questions[args.indexQuestion].limited= storing;
+         return;
+      }
+
+   }
+
+
+   async function duplicateElementFromSectionBYIndex( specificid, type = "section", args={}) {
+      var storing = [];
+      let found = 0;
+      if (type === "section") {
+         for (let index = 0; index < sectionsdata.length; index++) {
+            const element = sectionsdata[index];
+            if (element.id == specificid) {
+               storing.push(element);
+               found = 1;
+            }
+            if (found === 1){
+               element.id++;
+            }
+            storing.push(element)
+         }
+         setsectionsdata(storing);
+         return;
+      }
+      if (type==="question"){
+         /*
+         args = {
+            indexSect : 0
+         }
+         */
+         for (let index = 0; index < sectionsdata[args.indexSect].questions.length; index++) {
+            let element = sectionsdata[args.indexSect].questions[index];
+            if (index == specificid) {
+               storing.push(element)
+               found = 1;
+            }
+            let element2 = element;
+            if (found === 1){
+               element2.id++;
+            }
+            storing.push(element2)
+         }
+         sectionsdata[args.indexSect].questions = storing;
+         return;
+      }
+      if (type === "LimitedQuestions"){
+         /*
+         args = {
+            indexSect : 0,
+            indexQuestion : 0
+         }
+         */
+         for (let index = 0; index < sectionsdata[args.indexSect].questions[args.indexQuestion].limited.length; index++) {
+            const element = sectionsdata[args.indexSect].questions[args.indexQuestion].limited[index];
+            if (index == specificid) {
+               storing.push(element)
+               found = 1;
+            }    
+            if (found === 1){
+               element.id++;
+            }
+            storing.push(element)
+         }
+         sectionsdata[args.indexSect].questions[args.indexQuestion].limited= storing;
+         return;
+      }
+
+   }
 
    async function deleteSection(e) {
       setstatus("saving...")
@@ -594,132 +591,32 @@ function SurveyDetails() {
       sectionDeleteBTN.classList.add("hover:bg-white");
       sectionDeleteBTN.classList.add("cursor-pointer");
    }
-   async function deleteQuestion(e) {
+   async function deleteQuestion(indexSect, index)  {
       setstatus("deleting...")
-      var DeleteQuestionBTN = e.currentTarget;
-      let questionid = DeleteQuestionBTN.getAttribute("questionid")
-
-      removeElementFromArrayBYID(sectionsQuestionsdata, questionid, setsectionsQuestionsdata)
+      removeElementFromSectionBYIndex(index,"question",{indexSect : indexSect})
+      removeElementFromArrayBYID(emptydata, 0, setemptydata);
       setstatus("deleted!")
    }
-   async function DeleteLimitedAnswer(e, item) {
+   async function DeleteLimitedAnswer(indexSect, questionid, index) {
       setstatus("deleting...")
-      var DeleteBTN = e.currentTarget;
-      let id = item.id
-      removeElementFromArrayBYID(LimitedAnswerdata, id, setLimitedAnswerdata)
+      removeElementFromSectionBYIndex(index,"LimitedQuestions",{indexSect : indexSect,indexQuestion : questionid})
+      removeElementFromArrayBYID(emptydata, 0, setemptydata);
       setstatus("deleted!")
    }
 
-   async function duplicateQuestion(e, item) {
-      setstatus("saving...")
-      var DuplicateBTN = e.currentTarget;
-      DuplicateBTN.disabled = true; DuplicateBTN.classList.remove("hover:bg-white"); DuplicateBTN.classList.remove("cursor-pointer");
-      let id = item.id
-
-
-      var Duplicate = new Promise(async (resolve, reject) => {
-         const textDelete = `DeleteLimitedAnswerByID?idTXT=${encodeURIComponent(id)}`;
-         await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textDelete}`, {
-            "headers": {
-               "accept-language": "en-US,en;q=0.9",
-               "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-         }).then(e => {
-            resolve(e.json)
-         })
-
-      });
-      await Duplicate
+   async function duplicateQuestion(indexSect, index) {
+      setstatus("deleting...")
+      duplicateElementFromSectionBYIndex(index,"question",{indexSect : indexSect})
+      removeElementFromArrayBYID(emptydata, 0, setemptydata);
+      setstatus("deleted!")
    }
 
    useEffect(async () => {
       LoadDataTrial();
-       LoadDataCategories()
+      LoadDataCategories()
       LoadSurveyData()
-      // LoadDataSections();
-      // LoadDataQuestions()
-
-      // LoadDataLimitedAnswers()
 
    }, [])
-   //setup before functions
-   var typingTimer;                //timer identifier
-   var descriptiontypingTimer;                //timer identifier
-   var doneTypingInterval = 100;  //time in ms, 1 seconds for example
-
-   function startTyping(e) {
-      clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => doneTypingQuestion(e), doneTypingInterval);
-   }
-
-   function startTypingDescription(e) {
-      clearTimeout(descriptiontypingTimer);
-      descriptiontypingTimer = setTimeout(() => doneTypingDescription(e), doneTypingInterval);
-   }
-
-
-
-   //user is "finished typing," do something
-   function doneTypingQuestion(e) {
-      var inputbox = e.target;
-      let sectionid = inputbox.getAttribute("sectionid")
-      let questionid = inputbox.getAttribute("questionid")
-      let questionTXT = inputbox.value;
-      sectionsdata[sectionid].questions.filter(e2 => { return e2.id == questionid })[0].question = questionTXT;
-
-   }
-
-   async function doneTypingDescription(e) {
-      setstatus("saving...")
-      var inputbox = e.target;
-      let id = inputbox.getAttribute("sectionid")
-      let DescriptionTXT = inputbox.value;
-      const textUpdate = `UpdateSectionDescription?idTXT=${encodeURIComponent(id)}&DescriptionTXT=${encodeURIComponent(DescriptionTXT)}`
-      var waitUpdate = new Promise(async (resolve2, reject) => {
-         await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-            "headers": {
-               "accept-language": "en-US,en;q=0.9",
-               "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-            },
-            "body": null,
-            "method": "GET"
-         }).then(e => {
-            resolve2(e.json)
-            setstatus("saved!")
-         })
-      });
-      await waitUpdate;
-
-
-      console.log("changed", e)
-   }
-
-   function startTypingLimitedAnswers(e, item) {
-      clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => doneTypingLimited(e, item), doneTypingInterval);
-   }
-   function doneTypingLimited(e, item) {
-      setstatus("saving...")
-      var inputbox = e.target;
-      let answerid = item.id;
-      let answerTXT = inputbox.value;
-      const textUpdate = `UpdateLimitedQuestion?idTXT=${encodeURIComponent(answerid)}&answerTXT=${encodeURIComponent(answerTXT)}`
-      fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/${textUpdate}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         setstatus("Saved!")
-         return e.json;
-      })
-      console.log("changed", e)
-
-   }
 
    async function loadGraph() {
 
@@ -882,7 +779,7 @@ function SurveyDetails() {
    }, [tabIndex])
    return (
       <>
-         <div className="bg-white border border-gray-400 rounded-lg py-4 px-6 flex mb-2 items-center">
+         <div style={{ zoom: (screenSize.dynamicWidth < 760) ? (0.8) : (1) }} className="bg-white border border-gray-400 rounded-lg py-4 px-6 flex mb-2 items-center">
             <div onClick={() => navigate(-2)} className="flex items-center hover:cursor-pointer hover:underline decoration-gray-400">
                <p className="text-gray-400">Trials</p>
                <ChevronRightIcon className="mx-1 w-5 h-5 text-gray-400" />
@@ -897,25 +794,47 @@ function SurveyDetails() {
          </div>
          <div className={`bg-white border border-gray-400 rounded-lg overflow-hidden mb-2`}>
 
-            <div className="flex p-6">
-               <img src={SURVEY_DATA?.image} alt="Survey" className="w-[128px] h-[128px] object-cover" />
-               <div className="mx-8 flex-1">
-                  <p className="text-3xl font-semibold">{SURVEY_DATA?.name}</p>
-                  <p className="mt-6">{SURVEY_DATA?.description}</p>
+            {(screenSize.dynamicWidth < 760) ? (<>
+               <div className="container-Survey-Template">
+                  <div className="Title-Template"> <p className="font-semibold">{SURVEY_DATA?.name}</p></div>
+                  <div className="description-Template"> <p className="mt-6">{SURVEY_DATA?.description}</p></div>
+                  <div className="Image-Box"><img src={SURVEY_DATA?.image} alt="Trial" style={{ width: '8rem' }} className="object-cover" /></div>
+                  <div className="Next-Button">
+                     <div className="flex">
+                        <button onClick={() => { setModalShow(true) }} className="flex w-[62px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                           <PencilIcon className="w-5 h-5 text-gray-400" />
+                        </button>
+                        <button id="surveyDelete" onClick={deleteSurvey} className="flex w-[62px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center mx-1 hover:bg-white">
+                           <TrashIcon className="w-5 h-5 text-gray-400" />
+                        </button>
+                     </div>
+                     <button onClick={addSection} className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-700 hover:text-gray-500">
+                        <PlusSmIcon className="w-5 h-5 " />
+                        <p className=" ml-2">Section</p>
+                     </button>
+                  </div>
                </div>
-               <div className="flex">
-                  <button onClick={() => { setModalShow(true) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
-                     <PencilIcon className="w-5 h-5 text-gray-400" />
-                  </button>
-                  <button id="surveyDelete" onClick={deleteSurvey} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center mx-1 hover:bg-white">
-                     <TrashIcon className="w-5 h-5 text-gray-400" />
-                  </button>
-                  <button onClick={addSection} className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-700 hover:text-gray-500">
-                     <PlusSmIcon className="w-5 h-5 " />
-                     <p className=" ml-2">Section</p>
-                  </button>
+            </>) : (<>
+               <div className="flex p-6">
+                  <img src={SURVEY_DATA?.image} alt="Survey" className="w-[128px] h-[128px] object-cover" />
+                  <div className="mx-8 flex-1">
+                     <p className="text-3xl font-semibold">{SURVEY_DATA?.name}</p>
+                     <p className="mt-6">{SURVEY_DATA?.description}</p>
+                  </div>
+                  <div className="flex">
+                     <button onClick={() => { setModalShow(true) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                        <PencilIcon className="w-5 h-5 text-gray-400" />
+                     </button>
+                     <button id="surveyDelete" onClick={deleteSurvey} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center mx-1 hover:bg-white">
+                        <TrashIcon className="w-5 h-5 text-gray-400" />
+                     </button>
+                     <button onClick={addSection} className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-700 hover:text-gray-500">
+                        <PlusSmIcon className="w-5 h-5 " />
+                        <p className=" ml-2">Section</p>
+                     </button>
+                  </div>
                </div>
-            </div>
+            </>)}
 
          </div>
          <div className="bg-white border border-gray-400 rounded-lg flex mt-4 px-4">
@@ -937,9 +856,9 @@ function SurveyDetails() {
          {tabIndex === 0 && (
             <>
                {sectionsdata.map((item, index) => {
-                  const sectindex = item.id;
+                  const sectindex = index;
                   return (
-                     <div for={sectindex} className="bg-white border border-gray-400 rounded-lg flex flex-col mt-4">
+                     <div htmlhtmlFor={sectindex} className="bg-white border border-gray-400 rounded-lg flex flex-col mt-4">
                         <div className="bg-gray-100 py-4 px-6 border-b border-b-gray-400">
                            <div className="flex mb-4 items-center">
                               <p className="text-2xl font-semibold">{`Section ${index + 1}`}</p>
@@ -951,10 +870,10 @@ function SurveyDetails() {
                                  <DocumentDuplicateIcon className="w-5 h-5 text-gray-400" />
                               </button>
                            </div>
-                           <label for={`category-select${sectindex}`} className="font-semibold mr-4">Category:</label>
-                           <div className="flex">
+                           <label htmlFor={`category-select${sectindex}`} className="font-semibold mr-4">Category:</label>
+                           <div className={`flex ${(screenSize.dynamicWidth < 800) ? "flex-column" : ""}`}>
                               <Select
-                                 className=" rounded-md  outline-none w-1/3"
+                                 className={`rounded-md  outline-none ${(screenSize.dynamicWidth > 800) ? "w-1/3" : ""}`}
                                  name={`category${sectindex}`}
                                  id={`category-select${sectindex}`}
                                  placeholder="Select Category"
@@ -974,10 +893,11 @@ function SurveyDetails() {
                               />
                               <input type="text" className="border py-1 px-2" name="categoryName" placeholder="Category name" />
                               <input type="text" className="border py-1 px-2" name="imagelink" placeholder="Image link" />
-                              <button onClick={AddCategory} className="flex w-[52px] h-11 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                              <button onClick={AddCategory} className={`flex h-11 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white ${(screenSize.dynamicWidth > 800) ? " w-[52px]" : ""}`}>
                                  <PlusIcon className="w-5 h-5 text-gray-400" />
                               </button>
                            </div>
+                           <label htmlFor={`section-description${sectindex}`} className="font-semibold mr-4">Section Description:</label>
                            <div >
 
                               <textarea className="border py-1 px-2 w-full" name="categoryName" onChange={(e) => { sectionsdata[index].description = e.target.value; removeElementFromArrayBYID(emptydata, 0, setemptydata); }} sectionid={item.id} defaultValue={item.description} placeholder="Description" />
@@ -986,13 +906,13 @@ function SurveyDetails() {
                         </div>
                         {sectionsdata[index].questions.map((itemQuestions, indexQ) => {
                            return (
-                              <div className="border-b border-b-gray-400 p-4">
+                              <div htmlhtmlFor={indexQ} key={itemQuestions.id} className="border-b border-b-gray-400 p-4">
                                  <div className="flex mb-2 items-center">
                                     <p className="text-2xl font-semibold flex-1">{`Question ${indexQ + 1}`}</p>
-                                    <button questionid={itemQuestions.id} questionidOrder={indexQ} onClick={(e) => { deleteQuestion(e) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
+                                    <button onClick={(e) => { deleteQuestion(sectindex,indexQ) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center hover:bg-white">
                                        <TrashIcon className="w-5 h-5 text-gray-400" />
                                     </button>
-                                    <button onClick={(e) => { duplicateQuestion(e, itemQuestions) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center ml-1">
+                                    <button onClick={(e) => { duplicateQuestion(sectindex,indexQ) }} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center ml-1">
                                        <DocumentDuplicateIcon className="w-5 h-5 text-gray-400" />
                                     </button>
                                  </div>
@@ -1000,8 +920,8 @@ function SurveyDetails() {
                                     sectionsdata[index].questions[indexQ].question = e.target.value; setsectionsdata(sectionsdata);
                                  }} defaultValue={itemQuestions.question} questionid={itemQuestions.id} sectionid={index} className="border py-1 px-2 w-full" placeholder="What is your question?" />
 
-                                 <div className="flex flex-wrap mt-2">
-                                    <select name={`questiontype${indexQ}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsdata[index].questions[indexQ].questiontype = e.target.value; removeElementFromArrayBYID(emptydata, 0, setemptydata); QustionsWithType(e.target, itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${indexQ}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: "49%", "fontFamily": "FontAwesome" }}>
+                                 <div className="flex flex-wrap justify-content-between mt-2">
+                                    <select name={`questiontype${indexQ}`} defaultValue={itemQuestions.questiontype} onChange={(e) => { sectionsdata[index].questions[indexQ].questiontype = e.target.value; removeElementFromArrayBYID(emptydata, 0, setemptydata); QustionsWithType(e.target, itemQuestions.id, itemQuestions, e.target.value) }} sectionid={sectindex} questionid={itemQuestions.id} id={`questiontype${indexQ}`} className="h-10 px-1 rounded-md border border-gray-200 outline-none " style={{ width: screenSize.dynamicWidth < 800 ? "100%" : "49%", "fontFamily": "FontAwesome" }}>
                                        <option value="rating" className="fa-solid"> &#xf118; Rating question</option>
                                        <option value="yes/no">&#xf058; Yes/no question</option>
                                        <option value="limited">&#xf0c9; Limited question</option>
