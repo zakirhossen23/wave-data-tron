@@ -67,7 +67,7 @@ function Login() {
             LoadingICON.style.display = "none";
             return;
          }
-         let userid = await contract.CheckEmail(emailTXT.value).call()
+         let userid = await contract.Login(emailTXT.value, passwordTXT.value).call()
 
          if (userid !== "False") {
             LoadingICON.style.display = "none";
