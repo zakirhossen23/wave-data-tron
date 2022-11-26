@@ -11,12 +11,14 @@
     "turbo-build": "npx turbo build"
   },
   "dependencies": {
+    "cypress": "^11.2.0",
     "next": "13.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tronweb": "^4.4.0"
   },
   "devDependencies": {
+    "netlify-plugin-cypress": "^2.2.0",
     "turbo": "^1.6.3"
   }
 }
