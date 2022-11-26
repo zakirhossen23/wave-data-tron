@@ -14,7 +14,7 @@ export default async function useContract() {
 	const privateKey = '1468f14005ff479c5f2ccde243ad3b85b26ff40d5a4f78f4c43c81a1b3f13a03';
 	const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
 	contractInstance.signerAddress =  tronWeb.address.fromPrivateKey("1468f14005ff479c5f2ccde243ad3b85b26ff40d5a4f78f4c43c81a1b3f13a03");
-	contractInstance.contract = await tronWeb.contract().at('THYfBNgMyWhX2b7RmRfDKf3SPZgAwvFf5X');
+	contractInstance.contract = await tronWeb.contract().at('TTYE69G3GARC3ScSXZe1ie4xK9eAmQLdpB');
 
 	return contractInstance;
 }

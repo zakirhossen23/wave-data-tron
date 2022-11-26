@@ -22,14 +22,13 @@ class QuestionnaireScreen extends ConsumerStatefulWidget {
 class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
   var TGheader = {
     "accept-language": "en-US,en;q=0.9",
-    "Authorization": "Bearer n63cf58df61rvnp6dgeq4a4rolokeoe8",
+    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
   };
 
   var allSections = [];
   var allCategory = [
     {"name": "", "image": ""}
   ];
-  var alllimitedQuestions = [];
   bool isloading = true;
   Future<void> GetData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,7 +36,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     allSections = [];
     allCategory = [];
     var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/GetSectionsQuestionsBySurveyID?surveyIDTXT=${surveyid}');
+        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetSectionsQuestionsBySurveyID?surveyIDTXT=${surveyid}');
     final response = await http.get(url, headers: TGheader);
     var responseData = json.decode(response.body);
     var data = (responseData['results']);
@@ -47,7 +46,6 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
 
     var allQC = data[2]['SQ'];
     var allCT = data[3]['CT'];
-    alllimitedQuestions = data[4]['LQT'];
     setState(() {
       for (var i = 0; i < allCT.length; i++) {
         var element = allCT[i];
@@ -72,21 +70,15 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
         };
         var allQuestions = allQC.where((element) =>
             element['attributes']['sectionid'] == sectElement['id']);
-
         int qid = 1;
         for (var item in allQuestions) {
           var element = item['attributes'];
-          var alllimited = alllimitedQuestions
-              .where((element2) =>
-                  element2['attributes']['questionid'] == element['id'])
-              .toList();
           var Quction = Question(
               id: qid.toString(),
               questionid: element['id'],
               QuestionType: element['questiontype'],
               QuestionType2: element['questiontype2'],
               content: element['question'],
-              limited: alllimited,
               Answer: "");
           object['questions'].add(Quction);
           qid++;
@@ -113,7 +105,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
       String questionid = itemQ.questionid;
       String answerTXT = itemQ.Answer;
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyAnswers?trialidTXT=${(trialid)}&surveyidTXT=${surveyid}&sectionidTXT=${sectionid}&questionidTXT=${questionid}&answerTXT=${answerTXT}&useridTXT=${userid}');
+          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyAnswers?trialidTXT=${(trialid)}&surveyidTXT=${surveyid}&sectionidTXT=${sectionid}&questionidTXT=${questionid}&answerTXT=${answerTXT}&useridTXT=${userid}');
       final response = await http.get(url, headers: TGheader);
       var responseData = json.decode(response.body);
     }
@@ -132,7 +124,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     try {
       int trialid = allSections[0]['trialid'];
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyHistory?surveyIDTXT=${(surveyid)}&useridTXT=${userid}&dateTXT=${DateTime.now()}&TrialIDTXT=${trialid}');
+          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyHistory?surveyIDTXT=${(surveyid)}&useridTXT=${userid}&dateTXT=${DateTime.now()}&TrialIDTXT=${trialid}');
       final response = await http.get(url, headers: TGheader);
       var responseData = json.decode(response.body);
     } catch (e) {}
@@ -612,29 +604,45 @@ class _QuestionWidget extends State<QuestionWidget> {
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
-            children: question.limited
-                .map(
-                  (e) => Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            question.Answer = e['attributes']['answer'];
-                          });
-                        },
-                        child: Container(
-                            margin: EdgeInsets.only(left: 24, right: 24),
-                            child: question.Answer != e['attributes']['answer']
-                                ? Image.asset("assets/images/moods/back-no.png")
-                                : Image.asset(
-                                    "assets/images/moodspressed/back-yes.png")),
-                      ),
-                      Expanded(child: Text(e['attributes']['answer']))
-                    ],
+            children: [
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        question.Answer = "Yes";
+                      });
+                    },
+                    child: Container(
+                        margin: EdgeInsets.only(left: 24, right: 24),
+                        child: question.Answer != "Yes"
+                            ? Image.asset("assets/images/moods/back-yes.png")
+                            : Image.asset(
+                                "assets/images/moodspressed/back-yes.png")),
                   ),
-                )
-                .toList(),
-          ),
+                  Text("Yes")
+                ],
+              ),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        question.Answer = "No";
+                      });
+                    },
+                    child: Container(
+                        margin: EdgeInsets.only(left: 24, right: 24),
+                        child: question.Answer != "No"
+                            ? Image.asset("assets/images/moods/back-no.png")
+                            : Image.asset(
+                                "assets/images/moodspressed/back-no.png")),
+                  ),
+                  Text("No")
+                ],
+              )
+            ],
+          )
         ],
       ),
     );

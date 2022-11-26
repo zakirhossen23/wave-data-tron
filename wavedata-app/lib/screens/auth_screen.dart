@@ -19,7 +19,11 @@ class AuthScreenApp extends State<AuthScreen> {
   TextEditingController emailTXT = new TextEditingController();
   TextEditingController passwordTXT = new TextEditingController();
   bool isLoading = false;
-
+  var POSTheader = {
+    "Access-Control-Allow-Origin": "*",
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded"
+  };
   @override
   initState() {
     GetAccount();
@@ -41,13 +45,10 @@ class AuthScreenApp extends State<AuthScreen> {
   }
 
   Future<void> LoginAccount() async {
-    //https://cors-anyhere.herokuapp.com/
-    var url = Uri.parse('http://localhost:3000/api/POST/Login');
-    final response = await http.post(url,  headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Accept": "application/json",
-          "Content-Type" : "application/x-www-form-urlencoded"
-        }, body: {'email':emailTXT.text, 'password':passwordTXT.text});
+    var url = Uri.parse(
+        'https://cors-anyhere.herokuapp.com/https://wave-data-api-tron.netlify.app/api/POST/Login');
+    final response = await http.post(url,headers: POSTheader,
+        body: {'email': emailTXT.text, 'password': passwordTXT.text});
     var responseData = json.decode(response.body);
     var data = (responseData['value']);
     if (data != "False") {
@@ -59,7 +60,7 @@ class AuthScreenApp extends State<AuthScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => MainScreen(),
+          builder: (context) => GetReadyScreen(),
         ),
       );
       print(prefs.getString("userid"));

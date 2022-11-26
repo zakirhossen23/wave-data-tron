@@ -7,33 +7,31 @@ class Question {
   String QuestionType2;
   String content;
   String Answer;
-  List limited;
 
-  Question(
-      {required this.id,
-      required this.questionid,
-      required this.QuestionType,
-      required this.QuestionType2,
-      required this.content,
-      required this.Answer,
-      required this.limited});
+  Question({
+    required this.id,
+    required this.questionid,
+    required this.QuestionType,
+    required this.QuestionType2,
+    required this.content,
+    required this.Answer,
+  });
 
-  Question copyWith(
-      {String? id,
-      String? questionid,
-      String? QuestionType,
-      String? QuestionType2,
-      String? content,
-      String? Answer,
-      List? limited}) {
+  Question copyWith({
+    String? id,
+    String? questionid,
+    String? QuestionType,
+    String? QuestionType2,
+    String? content,
+    String? Answer,
+  }) {
     return Question(
         id: id ?? this.id,
         questionid: questionid ?? this.questionid,
         QuestionType: QuestionType ?? this.QuestionType,
         QuestionType2: QuestionType2 ?? this.QuestionType2,
         content: content ?? this.content,
-        Answer: Answer ?? this.Answer,
-        limited: limited ?? this.limited);
+        Answer: Answer ?? this.Answer);
   }
 
   Map<String, dynamic> toMap() {
@@ -43,8 +41,7 @@ class Question {
       "QuestionType": QuestionType,
       "QuestionType2": QuestionType2,
       'content': content,
-      "Answer": Answer,
-      "limited": limited
+      "Answer": Answer
     };
   }
 
@@ -55,8 +52,7 @@ class Question {
         QuestionType: map['QuestionType'] ?? '',
         QuestionType2: map['QuestionType2'] ?? '',
         content: map['content'] ?? '',
-        Answer: map['Answer'] ?? "",
-        limited: map['limited'] ?? "");
+        Answer: map['Answer'] ?? "");
   }
 
   String toJson() => json.encode(toMap());
@@ -78,8 +74,7 @@ class Question {
         other.QuestionType == QuestionType &&
         other.QuestionType2 == QuestionType2 &&
         other.content == content &&
-        other.Answer == Answer &&
-        other.limited == limited;
+        other.Answer == Answer;
   }
 
   @override
@@ -89,6 +84,5 @@ class Question {
       QuestionType.hashCode ^
       QuestionType2.hashCode ^
       content.hashCode ^
-      Answer.hashCode ^
-      limited.hashCode;
+      Answer.hashCode;
 }

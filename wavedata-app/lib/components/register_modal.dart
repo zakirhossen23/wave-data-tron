@@ -19,22 +19,22 @@ class RegisterApp extends State<RegisterModal> {
   TextEditingController passwordTXT = new TextEditingController();
   TextEditingController ConPassTXT = new TextEditingController();
   bool isLoading = false;
-
+  var POSTheader = {
+    "Access-Control-Allow-Origin": "*",
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded"
+  };
 
   Future<void> RegisterAccount() async {
-    var url = Uri.parse('http://localhost:3000/api/GET/checkEmail?email=${Uri.encodeComponent(emailTXT.text)}');
+    var url = Uri.parse('https://wave-data-api-tron.netlify.app/api/GET/checkEmail?email=${Uri.encodeComponent(emailTXT.text)}');
     final response = await http.get(url);
     var responseData = json.decode(response.body);
-    if (responseData.value != "False") {
-      var urlReg = Uri.parse('http://localhost:3000/api/POST/Register');
-       final responseReg = await http.post(url,  headers: {
-          "Accept": "application/json",
-          "Content-Type" : "application/x-www-form-urlencoded"
-        }, body: {'fullname':fullnameTXT.text,'email':emailTXT.text, 'password':passwordTXT.text});
+    if (responseData['value'] == "False") {
+      var urlReg = Uri.parse('https://wave-data-api-tron.netlify.app/api/POST/Register');
+       await http.post(urlReg,  headers: POSTheader, body: {'fullname':fullnameTXT.text,'email':emailTXT.text, 'password':passwordTXT.text});
     
       Navigator.pop(context);
     }
-
     setState(() => isLoading = false);
     return;
   }

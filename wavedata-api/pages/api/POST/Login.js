@@ -1,7 +1,5 @@
-import { headers } from "../../../next.config";
 
 export default async function handler(req, res) {
-  await headers();
 
   let useContract = await import("../../../contract/useContract.ts");
   let { contract, signerAddress } = await useContract.default();

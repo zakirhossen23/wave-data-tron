@@ -1,11 +1,11 @@
 {
-    "name": "wavebusiness",
-    "short_name": "wavebusiness",
+    "name": "wavedata",
+    "short_name": "wavedata",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Next business steps together.",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

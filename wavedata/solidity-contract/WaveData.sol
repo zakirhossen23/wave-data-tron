@@ -16,6 +16,15 @@ contract WaveData {
         string password;
     }
     
+    /// Survy Category Struct contains all the Category information
+    struct survey_category_struct { 
+        ///Name of Category
+        string name;
+        ///Image Link of Category
+        string image;
+    }
+    
+    
      /// Trial Struct contains all the trial information
     struct trial_struct { 
         /// The ID of the Trial ID.
@@ -52,20 +61,6 @@ contract WaveData {
         uint256 total_spending_limit;
     }
     
-       /// Reward Struct for storing rewared information in the trial 
-    struct reward_struct { 
-        /// The ID of the Trial ID.
-        uint256 trial_id;
-        /// The ID of the User ID.
-        uint256 user_id;
-        /// The Type of the Reward.
-        string reward_type;
-        /// The Price of the Reward.
-        uint256 reward_price;
-        /// The Total Spending Limit of the Trial.
-        uint256 total_spending_limit;
-    }
-    
     
     /// Survey Struct contains all the survey information
     struct survey_struct { 
@@ -89,21 +84,40 @@ contract WaveData {
         uint256 submission;
     }
      
-     
+    /// FHIR user information
+    struct fhir_struct {
+        /// User ID of the user
+        uint256 user_id;
+        /// Identifier of the user FHIR
+        string identifier;
+        /// The Patient ID of the user FHIR
+        string patient_id;
+    }
      
    
     
 	uint256 public _UserIds;
 	uint256 public _TrialIds;
 	uint256 public _SurveyIds;
+	uint256 public _SurveyCategoryIds;
 	 /// The map of all the Users login information.
 	mapping(uint256 => user_struct) private _userMap;  
 	 /// The map of all the Trials information.
 	mapping(uint256 => trial_struct) public _trialMap;  
 	 /// The map of all the Rewards information.
 	mapping(uint256 => reward_struct) public _trialRewardMap;  
+	 /// The map of all the Rewards information.
+	mapping(uint256 => string) public _trialAudienceMap;  //trial id => Audience JSON 
 	 /// The map of all the Surveys information.
 	mapping(uint256 => survey_struct) public _surveyMap;  
+	 /// The map of all the Survey Category .
+	mapping(uint256 => survey_category_struct) public _categoryMap;  
+	 /// The map of all the Survey Sections  .
+	mapping(uint256 => string) public _sectionsMap;    //Survey id => All sections
+	
+	/// The map of all the FHIR information.
+	mapping(uint256 => fhir_struct) public _fhirMap;   //User id => user FHIR
+	
 	
 	address public owner;
 
@@ -220,6 +234,20 @@ contract WaveData {
 	    });
 	    _SurveyIds++;
     }
+    //Create or Save Sections
+    function CreateOrSaveSections(uint256 survey_id, string memory metadata) public{
+        // Store the metadata of all Sections in the map.
+	    _sectionsMap[survey_id] = metadata;
+    }
+   //Create Survey Category
+    function CreateSurveyCategory(string memory name,string memory image) public{
+        // Store the metadata of Survey Category in the map.
+	    _categoryMap[_SurveyCategoryIds] = survey_category_struct({
+	         name:name,
+	         image:image
+	    });
+	    _SurveyCategoryIds++;
+    }
 
   
   
@@ -254,7 +282,25 @@ contract WaveData {
 	    _trialRewardMap[trial_id].reward_price = reward_price;
 	    _trialRewardMap[trial_id].total_spending_limit = total_spending_limit;
     }
+   
     
+     //Update Audience
+    function UpdateAudience(uint256 trial_id, 
+        string memory audience_info
+    ) public{
+        // Update the metadata of Audience in the map.
+	    _trialAudienceMap[trial_id] = audience_info;
+	    
+    }
+   
+   
+    //Update FHIR
+    function UpdateFhir(uint256 user_id,string memory identifier,string memory patient_id) public{
+        // Update the metadata of FHIR in the map.
+        _fhirMap[user_id].user_id = user_id;
+	    _fhirMap[user_id].identifier = identifier;
+	    _fhirMap[user_id].patient_id = patient_id;
+    }
 
 }
 

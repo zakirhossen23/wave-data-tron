@@ -22,8 +22,6 @@ import 'package:wavedata/screens/auth_screen.dart';
 import 'package:wavedata/screens/feeling_screen.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import 'questionnaire_screen.dart';
-
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
@@ -40,7 +38,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   var TGheader = {
     "accept-language": "en-US,en;q=0.9",
-    "Authorization": "Bearer n63cf58df61rvnp6dgeq4a4rolokeoe8",
+    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
   };
 
   var FHIRheader = {
@@ -62,7 +60,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Future<void> GetAvialbleData() async {
     avilableTrials = [];
     var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/SelectTrialUserID?userIDTXT=${userid}');
+        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/SelectTrialUserID?userIDTXT=${userid}');
     final response = await http.get(url, headers: TGheader);
     var responseData = json.decode(response.body);
     var data = (responseData['results']);
@@ -89,7 +87,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     };
     dummyActions = [];
     var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/GetOngoingTrial?userIDTXT=${userid}');
+        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetOngoingTrial?userIDTXT=${userid}');
     final response = await http.get(url, headers: TGheader);
     var responseData = json.decode(response.body);
     var data = (responseData['results']);
@@ -101,7 +99,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         isOngoingTrial = true;
       });
       try {
-        //Courses
+        //Trials
         var element = data[0]['TR'][0];
         setState(() {
           ongoingTrials['trialid'] = element['attributes']['id'];
@@ -149,7 +147,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   Future<void> GetFHIRData(int userid) async {
     var urlTG = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/GetFHIRByUserID?useridTXT=${int.parse(userid.toString())}');
+        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetFHIRByUserID?useridTXT=${int.parse(userid.toString())}');
     final response = await http.get(urlTG, headers: TGheader);
     var responseDataTG = json.decode(response.body);
     if (responseDataTG['results'] != null) {
@@ -282,7 +280,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       final prefs = await SharedPreferences.getInstance();
       int userid = int.parse(prefs.getString("userid").toString());
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/CreateOngoingTrial?trialidTXT=${trialid}&userIDTXT=${userid}');
+          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateOngoingTrial?trialidTXT=${trialid}&userIDTXT=${userid}');
       final response =
           await http.get(url, headers: _MainScreenState().TGheader);
       var responseData = json.decode(response.body);
@@ -293,7 +291,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     Future startFunction(int trialid) => showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: Text("Do you want to start the course?"),
+              title: Text("Do you want to start the trial?"),
               actions: [
                 TextButton(
                     onPressed: (() async {
@@ -312,7 +310,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       int userid = int.parse(prefs.getString("userid").toString());
 
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/UpdateImage?useridTXT=${userid}&imageTXT=${_textFieldController.text}');
+          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/UpdateImage?useridTXT=${userid}&imageTXT=${_textFieldController.text}');
       final response = await http.get(url, headers: TGheader);
       var responseData = json.decode(response.body);
 
@@ -478,7 +476,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         child: Row(
                           children: [
                             const Text(
-                              "Ongoing Courses",
+                              "Ongoing trials",
                               style: TextStyle(
                                   color: Color(0xFF08323A),
                                   fontSize: 15,
@@ -528,7 +526,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                           ),
                                         )
                                       : const Center(
-                                          child: Text("No ongoing Courses")),
+                                          child: Text("No ongoing trials")),
                                 ),
                                 Positioned(
                                     bottom: 5,
@@ -548,7 +546,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                                         context,
                                                         MaterialPageRoute(
                                                           builder: (context) =>
-                                                              QuestionnaireScreen(),
+                                                              FeelingScreen(),
                                                         ),
                                                       );
                                                       GetAccountData();
@@ -566,7 +564,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         child: Row(
                           children: [
                             const Text(
-                              "Available Courses",
+                              "Available trials",
                               style: TextStyle(
                                   color: Color(0xFF08323A),
                                   fontSize: 15,
@@ -826,7 +824,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   margin: EdgeInsets.only(left: 10, top: 26, bottom: 50),
                   height: 100,
                   child: Text(
-                    "My data",
+                    "FHIR data",
                     style: TextStyle(fontSize: 30),
                   )),
               Positioned(
@@ -1201,13 +1199,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           const Text(
-                                            "Total build points",
+                                            "Total build credits",
                                             style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w700),
                                           ),
                                           Text(
-                                            "" +
+                                            "\$" +
                                                 userDetails['credits']
                                                     .toString(),
                                             style: TextStyle(
@@ -1310,14 +1308,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 const Text(
-                                                  "Total points",
+                                                  "Total credits",
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
                                                           FontWeight.w700),
                                                 ),
                                                 Text(
-                                                  "" +
+                                                  "\$" +
                                                       userDetails[
                                                               'ongoingcredit']
                                                           .toString(),

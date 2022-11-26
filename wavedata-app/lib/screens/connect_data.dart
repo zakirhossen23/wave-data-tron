@@ -19,9 +19,10 @@ class ConnectDataApp extends State<ConnectDataScreen> {
   TextEditingController FHIRIDTXT = new TextEditingController();
 
   bool isLoading = false;
-  var TGheader = {
-    "accept-language": "en-US,en;q=0.9",
-    "Authorization": "Bearer n63cf58df61rvnp6dgeq4a4rolokeoe8",
+  var POSTheader = {
+    "Access-Control-Allow-Origin": "*",
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded"
   };
   bool termsBool = false;
 
@@ -34,17 +35,27 @@ class ConnectDataApp extends State<ConnectDataScreen> {
   Future<void> ConnectData() async {
     final prefs = await SharedPreferences.getInstance();
     var userid = prefs.getString("userid");
-    //replace your restFull API here.
     var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/CreateFHIR?useridTXT=${userid}&givenNameTXT=${Uri.encodeComponent(GivenNameTXT.text)}&identifierTXT=${Uri.encodeComponent(IdentifierTXT.text)}&FHIRIDTXT=${int.parse(FHIRIDTXT.text)}');
-    final response = await http.get(url, headers: TGheader);
+        'https://wave-data-api-tron.netlify.app/api/POST/UpadateFhir');
+    final response = await http.post(url, headers: POSTheader, body: {
+      'userid': userid,
+      'givenname': GivenNameTXT.text,
+      'identifier': IdentifierTXT.text,
+      'patientid': FHIRIDTXT.text
+    });
     var responseData = json.decode(response.body);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(),
-      ),
-    );
+    if (responseData['status'] == 200) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Please try again!")));
+    }
+
     setState(() => isLoading = false);
     return;
   }
@@ -52,19 +63,16 @@ class ConnectDataApp extends State<ConnectDataScreen> {
   Future<void> GetData() async {
     final prefs = await SharedPreferences.getInstance();
     var userid = prefs.getString("userid");
-    var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://test.i.tgcloud.io:14240/restpp/query/WaveData/GetFHIRByUserID?useridTXT=${int.parse(userid.toString())}');
-    final response = await http.get(url, headers: TGheader);
+   var url = Uri.parse('https://wave-data-api-tron.netlify.app/api/GET/getFhir?userid=${int.parse(userid.toString())}');
+   
+    final response = await http.get(url);
     var responseData = json.decode(response.body);
-    if (responseData['results'] != null) {
-      var data = (responseData['results']);
-
-      var allData = data[0]['SV'][0]['attributes'];
-      print(allData);
+    if (responseData['value'] != null) {
+      var data = (responseData['value']);
       setState(() {
-        GivenNameTXT.text = allData['givenName'];
-        IdentifierTXT.text = allData['identifier'];
-        FHIRIDTXT.text = allData['FHIRID'].toString();
+        GivenNameTXT.text = data['given_name'];
+        IdentifierTXT.text = data['identifier'];
+        FHIRIDTXT.text = data['patient_id'].toString();
       });
     }
   }
