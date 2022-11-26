@@ -88,6 +88,8 @@ contract WaveData {
     struct fhir_struct {
         /// User ID of the user
         uint256 user_id;
+        /// Given Name in FHIR
+        string given_name;
         /// Identifier of the user FHIR
         string identifier;
         /// The Patient ID of the user FHIR
@@ -295,9 +297,10 @@ contract WaveData {
    
    
     //Update FHIR
-    function UpdateFhir(uint256 user_id,string memory identifier,string memory patient_id) public{
+    function UpdateFhir(uint256 user_id,string memory given_name,string memory identifier,string memory patient_id) public{
         // Update the metadata of FHIR in the map.
         _fhirMap[user_id].user_id = user_id;
+	    _fhirMap[user_id].given_name = given_name;
 	    _fhirMap[user_id].identifier = identifier;
 	    _fhirMap[user_id].patient_id = patient_id;
     }
