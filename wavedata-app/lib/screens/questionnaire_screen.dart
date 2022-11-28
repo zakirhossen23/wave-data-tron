@@ -20,11 +20,11 @@ class QuestionnaireScreen extends ConsumerStatefulWidget {
 }
 
 class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
-  var TGheader = {
-    "accept-language": "en-US,en;q=0.9",
-    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-  };
 
+  var POSTheader = {
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded"
+  };
   var allSections = [];
   var allCategory = [
     {"name": "", "image": ""}
@@ -37,7 +37,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     allCategory = [];
     var url = Uri.parse(
         'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetSectionsQuestionsBySurveyID?surveyIDTXT=${surveyid}');
-    final response = await http.get(url, headers: TGheader);
+    final response = await http.get(url, headers: POSTheader);
     var responseData = json.decode(response.body);
     var data = (responseData['results']);
     var SurveyData = data[0]['SV'];
@@ -106,7 +106,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
       String answerTXT = itemQ.Answer;
       var url = Uri.parse(
           'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyAnswers?trialidTXT=${(trialid)}&surveyidTXT=${surveyid}&sectionidTXT=${sectionid}&questionidTXT=${questionid}&answerTXT=${answerTXT}&useridTXT=${userid}');
-      final response = await http.get(url, headers: TGheader);
+      final response = await http.get(url, headers: POSTheader);
       var responseData = json.decode(response.body);
     }
     setState(() {
@@ -125,7 +125,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
       int trialid = allSections[0]['trialid'];
       var url = Uri.parse(
           'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyHistory?surveyIDTXT=${(surveyid)}&useridTXT=${userid}&dateTXT=${DateTime.now()}&TrialIDTXT=${trialid}');
-      final response = await http.get(url, headers: TGheader);
+      final response = await http.get(url, headers: POSTheader);
       var responseData = json.decode(response.body);
     } catch (e) {}
 

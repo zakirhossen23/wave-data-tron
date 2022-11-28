@@ -36,9 +36,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     GetAccountData();
   }
 
-  var TGheader = {
-    "accept-language": "en-US,en;q=0.9",
-    "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
+  var POSTheader = {
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded"
   };
 
   var FHIRheader = {
@@ -87,44 +87,46 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       "totalprice": 0
     };
     dummyActions = [];
-    var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetOngoingTrial?userIDTXT=${userid}');
-    final response = await http.get(url, headers: TGheader);
+  var url = Uri.parse(
+        'https://wave-data-api-tron.netlify.app/api/GET/Trial/GetOngoingTrial?userid=${userid}');
+    final response = await http.get(url);
     var responseData = json.decode(response.body);
-    var data = (responseData['results']);
 
-    int onGoingSurveyId = data[1]['TOTAL'];
 
-    if (onGoingSurveyId > 0) {
+    var data = (responseData['value']);
+
+
+    if (data != "None") {
       setState(() {
         isOngoingTrial = true;
       });
+      var decoded_data = json.decode(data);
       try {
         //Trials
-        var element = data[0]['TR'][0];
+        var element = decoded_data['Trial'];
         setState(() {
-          ongoingTrials['trialid'] = element['attributes']['id'];
-          ongoingTrials['title'] = element['attributes']['title'];
-          ongoingTrials['description'] = element['attributes']['description'];
-          ongoingTrials['image'] = element['attributes']['image'];
-          ongoingTrials['totalprice'] = element['attributes']['budget'];
-          userDetails['totalongoingcredit'] = element['attributes']['budget'];
+          ongoingTrials['trialid'] = element['id'];
+          ongoingTrials['title'] = element['title'];
+          ongoingTrials['image'] = element['image'];
+          ongoingTrials['description'] = element['description'];
+          ongoingTrials['totalprice'] = element['budget'];
+          userDetails['totalongoingcredit'] = element['budget'];
         });
       } catch (e) {}
-    }
 
+      
     setState(() {
       //Surveys
-      var SurveyAllElement = data[2]['SRV'];
-      var SurveyAllCompletedElement = data[3]['Completed'];
+      var SurveyAllElement = decoded_data['Survey'];
+      var SurveyAllCompletedElement = decoded_data['Completed'];
       int totalcredit = 0;
       for (var i = 0; i < SurveyAllElement.length; i++) {
         var SurveyElement = SurveyAllElement[i];
         var completedSurvey = SurveyAllCompletedElement.where((e) =>
-            e['attributes']['surveyid'] == SurveyElement['attributes']['id']);
+            e['survey_id'] == SurveyElement['id']);
         String timeToday = "Today";
         if (completedSurvey.length > 0) {
-          var completedData = completedSurvey.toList()[0]['attributes'];
+          var completedData = completedSurvey.toList()[0];
           String completedDate = completedData['date'];
           String timeToday =
               Jiffy(DateTime.parse(completedDate)).fromNow(); // a year ago
@@ -132,19 +134,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         }
         bool status = completedSurvey.length > 0;
         totalcredit +=
-            int.parse(SurveyElement['attributes']['reward'].toString());
+            int.parse(SurveyElement['reward'].toString());
 
         dummyActions.add(
           TrialAction(
-              id: SurveyElement['attributes']['id'],
+              id: SurveyElement['id'].toString(),
               when: timeToday,
-              content: SurveyElement['attributes']['name'],
+              content: SurveyElement['name'],
               isDone: status),
         );
       }
       userDetails['ongoingcredit'] = totalcredit;
     });
-  }
+  
+    }
+}
 
   Future<void> GetFHIRData(int userid) async {
     var urlWD = Uri.parse(
@@ -281,12 +285,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     Future<void> StartTrial(int trialid) async {
       final prefs = await SharedPreferences.getInstance();
       int userid = int.parse(prefs.getString("userid").toString());
-      var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateOngoingTrial?trialidTXT=${trialid}&userIDTXT=${userid}');
-      final response =
-          await http.get(url, headers: _MainScreenState().TGheader);
-      var responseData = json.decode(response.body);
 
+      var url = Uri.parse(
+          'https://wave-data-api-tron.netlify.app/api/POST/Trial/CreateOngoingTrail');
+      await http.post(url,
+          headers: POSTheader, body: {'trialid': trialid.toString(), 'userid': userid.toString()});
+
+      print("Click");
       Navigator.pop(context);
     }
 
@@ -313,7 +318,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
       var url = Uri.parse(
           'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/UpdateImage?useridTXT=${userid}&imageTXT=${_textFieldController.text}');
-      final response = await http.get(url, headers: TGheader);
+      final response = await http.get(url, headers: POSTheader);
       var responseData = json.decode(response.body);
 
       Navigator.of(context).pop();
