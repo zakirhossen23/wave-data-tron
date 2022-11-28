@@ -146,22 +146,22 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Future<void> GetFHIRData(int userid) async {
-    var urlTG = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetFHIRByUserID?useridTXT=${int.parse(userid.toString())}');
-    final response = await http.get(urlTG, headers: TGheader);
-    var responseDataTG = json.decode(response.body);
-    if (responseDataTG['results'] != null) {
-      var data = (responseDataTG['results']);
-      var imageData = data[2]['IMG'][0]['attributes']['image'];
+   var urlWD = Uri.parse('https://wave-data-api-tron.netlify.app/api/GET/getFhir?userid=${int.parse(userid.toString())}');
+    final responseWD = await http.get(urlWD);
+    var responseDataWD = json.decode(responseWD.body);
 
-      setState(() {
-        ImageLink = imageData;
-        userDetails["credits"] = data[2]['IMG'][0]['attributes']['credits'];
-      });
+    if (responseDataWD['value'] != null) {
+      var data = (responseDataWD['value']);
+      // var imageData = data[2]['IMG'][0]['attributes']['image'];
+
+      // setState(() {
+      //   ImageLink = imageData;
+      //   userDetails["credits"] = data[2]['IMG'][0]['attributes']['credits'];
+      // });
       try {
-        var allData = data[0]['SV'][0]['attributes'];
+        var allData = data;
 
-        var patientid = int.parse(allData['FHIRID'].toString());
+        var patientid = int.parse(allData['patient_id'].toString());
 
         var url = Uri.parse(
             "https://fhir.9sb2xtg1lmi6.static-test-account.isccloud.io/Patient/${patientid}");

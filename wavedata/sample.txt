@@ -1,3 +1,11 @@
+jilth20@gmail.com
+
+wavedata
+April14202233%
+
+
+
+
 Trial:
 1. Female Veteran Heart Failure - Stress data
 Gerber and her team studied the data of 157,000 women Veterans over the age of 45 to examine the relationship between coronary artery disease and the presence of one or more mental health conditions. (Coronary artery disease causes a waxy substance called plaque — cholesterol deposits — to build up on the inside of your coronary arteries. These are the arteries that supply oxygen-rich blood to your heart.)
@@ -14,11 +22,13 @@ https://i.postimg.cc/VNZz7rrj/Rectangle-3-1.png
 
 
 Category:
-1. Emotional health activities
-https://i.postimg.cc/zG8Txn9z/mental-3.png
+General Health - https://i.postimg.cc/RhWyzZYQ
+Limitations of Activities - https://i.postimg.cc/9QHvW3vj
+Physical Health Problems - https://i.postimg.cc/QdM5vvVX
+Emotional Health Problems - https://i.postimg.cc/XvZVQnjF
+Social Activities - https://i.postimg.cc/rFz9x6JB
+Pain - https://i.postimg.cc/sfKZ5SYB
 
-2.Limitations of activities
-https://i.postimg.cc/28BWkHf8/mental-2.png
 
 Question:
 Section 1 (Rate 5):
@@ -27,6 +37,10 @@ Section 1 (Rate 5):
 
 
 Section 2 (Rate 3):
+LIMITATIONS OF ACTIVITIES 
+
+The following items are about activities you might do during a typical day. Does your health now limit you in these activities? If so, how much?
+
 1. Vigorous activites, such as running, lifting heavy objects, participating in strenuous sports
 2. Moderate activities, such as moving a table, pushing a vacuum cleaner, bowling, or playing golf
 3. Lifting or carrying groceries
@@ -35,7 +49,52 @@ Section 2 (Rate 3):
 6. Walking more than a mile
 7. Walking several blocks
 8. Walking one block
-9. Bathing or dressing yourself (Yes/No)
+9. Bathing or dressing yourself 
+
+
+Section 3 (Yes/No)
+PHYSICAL HEALTH PROBLEMS
+
+During the past 4 weeks, have you had any of the following problems with your work or other regular daily activities as a result of your physical health?
+
+1. Cut down the amount of time you spent on work or other activities
+2. Accomplished less than you would like
+3. Were limited in the kind of work or other activities
+4. Had difficulty performing the work or other activities (for example, it took extra effort)
+
+Section 4 (Yes/No)
+EMOTIONAL HEALTH PROBLEMS 
+During the past 4 weeks, have you had any of the following problems with your work or other regular daily activities as a result of any emotional problems (such as feeling depressed or anxious)?
+
+1. Cut down the amount of time you spent on work or other activities
+2. Accomplished less than you would like
+3. Didn't do work or other activities as carfully as usual
+
+
+Section 5 (Rating 5)
+SOCIAL ACTIVITIES
+
+1. Emotional problems interfered with your normal social activities with family, friends, neighbors or groups?
+
+
+Section 6 (Rating 5)
+PAIN
+1. How much bodily pain have you had during the past 4 weeks?
+2. During the past 4 weeks, how much did pain intergere with your normal work (including both work outside the home and housework)?
+
+
+
+------Mobile
+jilth20@gmail.com
+
+Caryn49
+999-56-7350
+65284
+
+https://i.postimg.cc/B6N2wWwq
+
+
+
 
 
 

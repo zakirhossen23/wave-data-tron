@@ -20,7 +20,6 @@ class RegisterApp extends State<RegisterModal> {
   TextEditingController ConPassTXT = new TextEditingController();
   bool isLoading = false;
   var POSTheader = {
-    "Access-Control-Allow-Origin": "*",
     "Accept": "application/json",
     "Content-Type": "application/x-www-form-urlencoded"
   };

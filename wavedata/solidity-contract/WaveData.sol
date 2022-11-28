@@ -97,11 +97,30 @@ contract WaveData {
     }
      
    
+   /// OnGoing Trial
+   struct ongoing_struct{
+       uint256 ongoing_id;
+       uint256 trial_id;
+       uint256 user_id;
+   }
+   
+    /// Completed Survey Trial
+    struct completed_survey_struct{
+       uint256 completed_survey_id;
+       uint256 trial_id;
+       uint256 user_id;
+       uint256 survey_id;
+       string date;
+    }
     
 	uint256 public _UserIds;
 	uint256 public _TrialIds;
 	uint256 public _SurveyIds;
 	uint256 public _SurveyCategoryIds;
+	
+	uint256 public _OngoingIds;
+	uint256 public _CompletedSurveyIds;
+	
 	 /// The map of all the Users login information.
 	mapping(uint256 => user_struct) private _userMap;  
 	 /// The map of all the Trials information.
@@ -119,6 +138,12 @@ contract WaveData {
 	
 	/// The map of all the FHIR information.
 	mapping(uint256 => fhir_struct) public _fhirMap;   //User id => user FHIR
+	/// The map of all the OnGoing Trials.
+	mapping(uint256 => ongoing_struct) public _ongoingMap; 
+	/// The map of all the Completed Surveys.
+	mapping(uint256 => completed_survey_struct) public _completedsurveyMap; 
+	
+	
 	
 	
 	address public owner;
@@ -251,6 +276,29 @@ contract WaveData {
 	    _SurveyCategoryIds++;
     }
 
+
+    //Get All Survey by Trial ID
+    function getAllSurveysIDByTrial(uint256 trial_id) public view  returns (uint256[] memory) {
+        uint256 _TemporarySearch = 0;
+
+        for (uint256 i = 0; i < _SurveyIds; i++) {
+            if (_surveyMap[i].trial_id ==trial_id) {
+                _TemporarySearch++;
+            }
+        }
+        uint256[] memory _SearchedStore = new uint256[](_TemporarySearch);
+
+        uint256 _SearchIds2 = 0;
+
+        for (uint256 i = 0; i < _SurveyIds; i++) {
+              if (_surveyMap[i].trial_id ==trial_id) {
+                _SearchedStore[_SearchIds2] = i;
+                _SearchIds2++;
+            }
+        }
+
+        return _SearchedStore;
+    }
   
   
     //Update Trial
@@ -303,6 +351,64 @@ contract WaveData {
 	    _fhirMap[user_id].given_name = given_name;
 	    _fhirMap[user_id].identifier = identifier;
 	    _fhirMap[user_id].patient_id = patient_id;
+    }
+
+
+    function CreateOngoingTrail(uint256 trial_id,uint256 user_id) public{
+        // Store the metadata of Ongoing Trial in the map.
+	    _ongoingMap[_OngoingIds] = ongoing_struct({
+	        ongoing_id:_OngoingIds,
+            trial_id:trial_id,
+            user_id:user_id
+	    });
+	    _OngoingIds++;
+    }
+    
+    function GetOngoingTrial(uint256 user_id) public view returns (string memory ){
+        ///Getting the found Ongoing Trial
+		for (uint256 i = 0; i < _OngoingIds; i++) {
+		    if (_ongoingMap[i].user_id == user_id) {
+			    ///Returning Trial id 
+				return Strings.toString(_ongoingMap[i].trial_id);
+			}
+		}
+        ///Returning False if not found 
+		return "False";
+    }
+
+
+    function CreateCompletedSurveys(uint256 survey_id,uint256 user_id,string memory date,uint256 trial_id) public{
+        // Store the metadata of Completed Survyes in the map.
+	    _completedsurveyMap[_CompletedSurveyIds] = completed_survey_struct({
+	        completed_survey_id:_CompletedSurveyIds,
+            trial_id:trial_id,
+            user_id:user_id,
+            survey_id: survey_id,
+            date: date
+	    });
+	    _CompletedSurveyIds++;
+    }
+    
+    function getAllCompletedSurveysIDByUser(uint256 user_id) public view  returns (uint256[] memory) {
+        uint256 _TemporarySearch = 0;
+
+        for (uint256 i = 0; i < _CompletedSurveyIds; i++) {
+            if (_completedsurveyMap[i].user_id ==user_id) {
+                _TemporarySearch++;
+            }
+        }
+        uint256[] memory _SearchedStore = new uint256[](_TemporarySearch);
+
+        uint256 _SearchIds2 = 0;
+
+        for (uint256 i = 0; i < _CompletedSurveyIds; i++) {
+              if (_completedsurveyMap[i].user_id ==user_id) {
+                _SearchedStore[_SearchIds2] = i;
+                _SearchIds2++;
+            }
+        }
+
+        return _SearchedStore;
     }
 
 }

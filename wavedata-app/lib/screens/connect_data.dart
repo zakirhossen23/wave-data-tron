@@ -20,7 +20,6 @@ class ConnectDataApp extends State<ConnectDataScreen> {
 
   bool isLoading = false;
   var POSTheader = {
-    "Access-Control-Allow-Origin": "*",
     "Accept": "application/json",
     "Content-Type": "application/x-www-form-urlencoded"
   };
