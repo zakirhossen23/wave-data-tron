@@ -60,17 +60,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Future<void> GetAvialbleData() async {
     avilableTrials = [];
     var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/SelectTrialUserID?userIDTXT=${userid}');
-    final response = await http.get(url, headers: TGheader);
+        'https://wave-data-api-tron.netlify.app/api/GET/Trial/GetAvailableTrial?userid=${userid}');
+    final response = await http.get(url);
     var responseData = json.decode(response.body);
-    var data = (responseData['results']);
-    var allTrials = data[0]['TR'];
+
+    var data = (responseData['value']);
+    var allTrials = json.decode(data);
     allTrials.forEach((element) => {
           setState(() {
             avilableTrials.add(Trial(
-              id: element['attributes']['id'],
-              image: element['attributes']['image'],
-              title: element['attributes']['title'],
+              id: element['id'],
+              title: element['title'],
+              image: element['image'],
             ));
           })
         });
@@ -146,7 +147,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Future<void> GetFHIRData(int userid) async {
-   var urlWD = Uri.parse('https://wave-data-api-tron.netlify.app/api/GET/getFhir?userid=${int.parse(userid.toString())}');
+    var urlWD = Uri.parse(
+        'https://wave-data-api-tron.netlify.app/api/GET/getFhir?userid=${int.parse(userid.toString())}');
     final responseWD = await http.get(urlWD);
     var responseDataWD = json.decode(responseWD.body);
 

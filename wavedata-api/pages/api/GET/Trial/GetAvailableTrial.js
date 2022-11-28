@@ -17,26 +17,25 @@ export default async function handler(req, res) {
 
   let trial_id = await contract.GetOngoingTrial(req.query.userid).call();
   let all_available_trials = [];
-  if (trial_id !== "False") {
-    for (let i = 0; i < Number(await contract._TrialIds().call()); i++) {
-      let trial_element = await contract._trialMap(i).call();
-      var newTrial = {
-        id: Number(trial_element.trial_id),
-        title: trial_element.title,
-        image: trial_element.image,
-        description: trial_element.description,
-        contributors: Number(trial_element.contributors),
-        audience: Number(trial_element.audience),
-        budget: Number(trial_element.budget)
-      };
+  for (let i = 0; i < Number(await contract._TrialIds().call()); i++) {
+    let trial_element = await contract._trialMap(i).call();
+    var newTrial = {
+      id: Number(trial_element.trial_id),
+      title: trial_element.title,
+      image: trial_element.image,
+      description: trial_element.description,
+      contributors: Number(trial_element.contributors),
+      audience: Number(trial_element.audience),
+      budget: Number(trial_element.budget)
+    };
+    if (trial_id !== "False") {
       if (Number(trial_id) !== newTrial.id)
         all_available_trials.push(newTrial);
+    }else{
+      all_available_trials.push(newTrial);
     }
-
+  }
     res.status(200).json({ status: 200, value: JSON.stringify(all_available_trials) })
     return;
-  }
-
-  res.status(400).json({ status: 400, value: "None" })
-
+  
 }

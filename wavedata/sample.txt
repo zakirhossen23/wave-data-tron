@@ -8,7 +8,7 @@ April14202233%
 
 Trial:
 1. Female Veteran Heart Failure - Stress data
-Gerber and her team studied the data of 157,000 women Veterans over the age of 45 to examine the relationship between coronary artery disease and the presence of one or more mental health conditions. (Coronary artery disease causes a waxy substance called plaque — cholesterol deposits — to build up on the inside of your coronary arteries. These are the arteries that supply oxygen-rich blood to your heart.)
+Gerber and her team studied the data of 157,000 women Veterans over the age of 45 to examine the relationship between coronary artery disease and the presence of one or more mental health conditions.
 
 
 https://i.postimg.cc/hGRz8wwj/veteran.png
@@ -22,12 +22,12 @@ https://i.postimg.cc/VNZz7rrj/Rectangle-3-1.png
 
 
 Category:
-General Health - https://i.postimg.cc/RhWyzZYQ
-Limitations of Activities - https://i.postimg.cc/9QHvW3vj
-Physical Health Problems - https://i.postimg.cc/QdM5vvVX
-Emotional Health Problems - https://i.postimg.cc/XvZVQnjF
-Social Activities - https://i.postimg.cc/rFz9x6JB
-Pain - https://i.postimg.cc/sfKZ5SYB
+General Health - https://i.postimg.cc/RhWyzZYQ/general-health.png
+Limitations of Activities - https://i.postimg.cc/9QHvW3vj/image.png
+Physical Health Problems - https://i.postimg.cc/QdM5vvVX/image.png
+Emotional Health Problems - https://i.postimg.cc/zG8Txn9z/mental-3.png
+Social Activities - https://i.postimg.cc/rFz9x6JB/Png-Item-3542923.png
+Pain - https://i.postimg.cc/sfKZ5SYB/image.png
 
 
 Question:
