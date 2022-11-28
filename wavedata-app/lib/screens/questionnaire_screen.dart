@@ -20,7 +20,6 @@ class QuestionnaireScreen extends ConsumerStatefulWidget {
 }
 
 class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
-
   var POSTheader = {
     "Accept": "application/json",
     "Content-Type": "application/x-www-form-urlencoded"
@@ -36,7 +35,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     allSections = [];
     allCategory = [];
 
-      var url = Uri.parse(
+    var url = Uri.parse(
         'https://wave-data-api-tron.netlify.app/api/GET/Trial/Survey/GetSurveyDetails?surveyid=${surveyid}');
     final response = await http.get(url);
     var responseData = json.decode(response.body);
@@ -46,8 +45,6 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     var SurveyData = data['Survey'];
 
     var allSect = data['Sections'];
-
-    var allQC = data[2]['SQ'];
     var allCT = data['Categories'];
     setState(() {
       for (var i = 0; i < allCT.length; i++) {
@@ -62,20 +59,20 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
         var categoryimage = allCategory.firstWhere(
             (element) => element['name'] == sectElement['category']);
         var object = {
-          "trialid": SurveyData['trial_id'],
+          "trialid": SurveyData['trial_id'].toString(),
           "surveyid": SurveyData['id'],
-          "sectionid": sectElement['id'],
+          "sectionid": i,
           "category": sectElement['category'],
           "description": sectElement['description'],
           "image": categoryimage['image'],
           "questions": []
         };
-        var allQuestions =sectElement['questions'];
+        var allQuestions = sectElement['questions'];
         int qid = 1;
         for (var element in allQuestions) {
           var Quction = Question(
               id: qid.toString(),
-              questionid: element['id'],
+              questionid: element['id'].toString(),
               QuestionType: element['questiontype'],
               QuestionType2: element['questiontype2'],
               content: element['question'],
@@ -96,18 +93,29 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     final prefs = await SharedPreferences.getInstance();
     String surveyid = prefs.getString("surveyid").toString();
     int userid = int.parse(prefs.getString("userid").toString());
-    var item = allSections
-        .where((element) => element['sectionid'] == sectionindex)
-        .toList()[0];
-    int trialid = item['trialid'];
+
+    var item = null;
+    for (var element in allSections) {
+      if (element['sectionid'] == sectionindex) {
+        item = element;
+      }
+      ;
+    }
+
+    int trialid = int.parse(item['trialid']);
     var sectionid = item['sectionid'];
     for (var itemQ in item['questions']) {
       String questionid = itemQ.questionid;
       String answerTXT = itemQ.Answer;
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyAnswers?trialidTXT=${(trialid)}&surveyidTXT=${surveyid}&sectionidTXT=${sectionid}&questionidTXT=${questionid}&answerTXT=${answerTXT}&useridTXT=${userid}');
-      final response = await http.get(url, headers: POSTheader);
-      var responseData = json.decode(response.body);
+          'https://wave-data-api-tron.netlify.app/api/POST/Trial/Survey/CreateSurveyAnswers');
+      await http.post(url, headers: POSTheader, body: {
+        'trialid': trialid.toString(),
+        'userid': userid.toString(),
+        'surveyid': surveyid.toString(),
+        'questionid': questionid.toString(),
+        'answer': answerTXT
+      });
     }
     setState(() {
       isloading = false;
@@ -123,10 +131,15 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     int userid = int.parse(prefs.getString("userid").toString());
     try {
       int trialid = allSections[0]['trialid'];
+
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/CreateSurveyHistory?surveyIDTXT=${(surveyid)}&useridTXT=${userid}&dateTXT=${DateTime.now()}&TrialIDTXT=${trialid}');
-      final response = await http.get(url, headers: POSTheader);
-      var responseData = json.decode(response.body);
+          'https://wave-data-api-tron.netlify.app/api/POST/Trial/Survey/CreateCompletedSurvey');
+      await http.post(url, headers: POSTheader, body: {
+        'surveyid': surveyid.toString(),
+        'userid': userid.toString(),
+        'date': DateTime.now(),
+        'trialid': trialid.toString()
+      });
     } catch (e) {}
 
     setState(() {

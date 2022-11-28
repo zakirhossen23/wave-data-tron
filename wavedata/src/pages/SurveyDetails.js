@@ -35,7 +35,7 @@ function SurveyDetails() {
       {
          category: "",
          description: "",
-         id: "",
+         id: 0,
          questions: [
             {
                id: 0,
@@ -121,7 +121,7 @@ function SurveyDetails() {
       setsectionsdata(prevState => [...prevState, {
          category: "",
          description: "",
-         id: "",
+         id: sectionsdata.length,
          questions: [
             {
                id: 0,
