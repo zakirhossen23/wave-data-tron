@@ -104,6 +104,17 @@ contract WaveData {
        uint256 user_id;
    }
    
+    /// Question Answers of Survey 
+    struct survey_question_answer_struct{
+       uint256 answer_id;
+       uint256 trial_id;
+       uint256 user_id;
+       uint256 survey_id;
+       uint256 section_id;
+       uint256 question_id;
+       string answer;
+    }
+   
     /// Completed Survey Trial
     struct completed_survey_struct{
        uint256 completed_survey_id;
@@ -119,6 +130,7 @@ contract WaveData {
 	uint256 public _SurveyCategoryIds;
 	
 	uint256 public _OngoingIds;
+	uint256 public _AnsweredIds;
 	uint256 public _CompletedSurveyIds;
 	
 	 /// The map of all the Users login information.
@@ -140,6 +152,8 @@ contract WaveData {
 	mapping(uint256 => fhir_struct) public _fhirMap;   //User id => user FHIR
 	/// The map of all the OnGoing Trials.
 	mapping(uint256 => ongoing_struct) public _ongoingMap; 
+	/// The map of all the Question Answerd in a Survey.
+	mapping(uint256 => survey_question_answer_struct) public _questionanswerdMap; 
 	/// The map of all the Completed Surveys.
 	mapping(uint256 => completed_survey_struct) public _completedsurveyMap; 
 	
@@ -376,6 +390,20 @@ contract WaveData {
 		return "False";
     }
 
+
+    function CreateQuestionAnswer(  uint256 trial_id,uint256 user_id,uint256 survey_id,uint256 section_id,uint256 question_id,string memory answer) public{
+        // Store the metadata of Question Answered in the map.
+	    _questionanswerdMap[_AnsweredIds] = survey_question_answer_struct({
+            answer_id:_AnsweredIds,
+            trial_id:trial_id,
+            user_id:user_id,
+            survey_id:survey_id,
+            section_id:section_id,
+            question_id:question_id,
+            answer:answer
+        });
+	    _AnsweredIds++;
+    }
 
     function CreateCompletedSurveys(uint256 survey_id,uint256 user_id,string memory date,uint256 trial_id) public{
         // Store the metadata of Completed Survyes in the map.
