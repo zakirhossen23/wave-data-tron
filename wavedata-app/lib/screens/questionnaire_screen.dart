@@ -35,44 +35,44 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     String surveyid = prefs.getString("surveyid").toString();
     allSections = [];
     allCategory = [];
-    var url = Uri.parse(
-        'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetSectionsQuestionsBySurveyID?surveyIDTXT=${surveyid}');
-    final response = await http.get(url, headers: POSTheader);
-    var responseData = json.decode(response.body);
-    var data = (responseData['results']);
-    var SurveyData = data[0]['SV'];
 
-    var allSect = data[1]['SCV'];
+      var url = Uri.parse(
+        'https://wave-data-api-tron.netlify.app/api/GET/Trial/Survey/GetSurveyDetails?surveyid=${surveyid}');
+    final response = await http.get(url);
+    var responseData = json.decode(response.body);
+
+    var data = (responseData['value']);
+
+    var SurveyData = data['Survey'];
+
+    var allSect = data['Sections'];
 
     var allQC = data[2]['SQ'];
-    var allCT = data[3]['CT'];
+    var allCT = data['Categories'];
     setState(() {
       for (var i = 0; i < allCT.length; i++) {
         var element = allCT[i];
-
         allCategory.add({
-          "name": element['attributes']['name'],
-          "image": element['attributes']['image'],
+          "name": element['name'],
+          "image": element['image'],
         });
       }
       for (var i = 0; i < allSect.length; i++) {
-        var sectElement = allSect[i]['attributes'];
+        var sectElement = allSect[i];
         var categoryimage = allCategory.firstWhere(
             (element) => element['name'] == sectElement['category']);
         var object = {
-          "trialid": SurveyData[0]['attributes']['Tiralid'],
-          "surveyid": SurveyData[0]['v_id'],
+          "trialid": SurveyData['trial_id'],
+          "surveyid": SurveyData['id'],
           "sectionid": sectElement['id'],
           "category": sectElement['category'],
           "description": sectElement['description'],
           "image": categoryimage['image'],
           "questions": []
         };
-        var allQuestions = allQC.where((element) =>
-            element['attributes']['sectionid'] == sectElement['id']);
+        var allQuestions =sectElement['questions'];
         int qid = 1;
-        for (var item in allQuestions) {
-          var element = item['attributes'];
+        for (var element in allQuestions) {
           var Quction = Question(
               id: qid.toString(),
               questionid: element['id'],
