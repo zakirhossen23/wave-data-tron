@@ -92,10 +92,6 @@ function TrialDetails() {
       {
          id: 'patient_id',
          title: 'Patient Id',
-      },
-      {
-         id: 'gender',
-         title: 'Gender',
       }
       ,
       {
@@ -309,11 +305,11 @@ function TrialDetails() {
    }
    async function LoadDataContributors() {
       setContributors([])
-      for (let i = 0; i < Number(await contract._OngoingIds()); i++) {
+      for (let i = 0; i < Number(await contract._OngoingIds().call()); i++) {
          const element = await contract._ongoingMap(i).call();
-         const user_element = await contract.getUserDetails(element.user_id).call();
-         const fhir_element = await contract._fhirMap(element.user_id).call();
-         if (element.trial_id === parseInt(params.id)){
+         const user_element = await contract.getUserDetails(Number(element.user_id)).call();
+         const fhir_element = await contract._fhirMap(Number(element.user_id)).call();
+         if (Number(element.trial_id) === parseInt(params.id)){
 
             setContributors(prevState => [...prevState, {
                id: i,name:user_element.name, givenname:fhir_element.given_name, identifier:fhir_element.identifier, patient_id: fhir_element.patient_id, gender:user_element.name,joined:element.date,
@@ -531,7 +527,6 @@ function TrialDetails() {
 
                               </td>
                               <td className="py-3 px-3">{givenname}</td>
-                              <td className="py-3 px-3">{`${gender}`}</td>
                               <td className="py-3 px-3">{`${identifier}`}</td>
                               <td className="py-3 px-3">{`${patient_id}`}</td>
                               <td className="py-3 px-3">{joined ? formatDistance(new Date(joined), new Date(), { addSuffix: true }) : '-'}</td>

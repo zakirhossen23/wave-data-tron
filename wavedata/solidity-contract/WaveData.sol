@@ -396,6 +396,7 @@ contract WaveData {
             user_id:user_id,
             date: date
 	    });
+	    _trialMap[trial_id].contributors += 1;
 	    _OngoingIds++;
     }
     
@@ -435,6 +436,8 @@ contract WaveData {
             survey_id: survey_id,
             date: date
 	    });
+	    _surveyMap[survey_id].submission += 1;
+	    _surveyMap[survey_id].date = date;
 	    _CompletedSurveyIds++;
     }
     

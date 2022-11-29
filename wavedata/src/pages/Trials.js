@@ -30,9 +30,7 @@ function Trials() {
             let allAudiences = [];
             try {
                allAudiences = JSON.parse(await contract._trialAudienceMap(i).call());
-            } catch (e) {
-               allAudiences = [];
-            }
+            } catch (e) {}
             var newTrial = {
                id: Number(trial_element.trial_id),
                title: trial_element.title,
