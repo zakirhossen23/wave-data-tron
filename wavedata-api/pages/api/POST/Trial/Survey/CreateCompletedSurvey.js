@@ -20,9 +20,9 @@ export default async function handler(req, res) {
 
   const { surveyid, userid, date, trialid } = req.body;
 
-  let survey_element = await contract._surveyMap(req.query.surveyid).call();
+  let survey_element = await contract._surveyMap(surveyid).call();
 
-  let details_element = await contract.getUserDetails(Number(req.query.userid)).call();
+  let details_element = await contract.getUserDetails(Number(userid)).call();
 
 
   await contract.CreateCompletedSurveys(Number(surveyid), Number(userid), date, Number(trialid)).send({

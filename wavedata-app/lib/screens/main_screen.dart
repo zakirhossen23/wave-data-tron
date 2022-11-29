@@ -129,9 +129,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             String timeToday =
                 Jiffy(DateTime.parse(completedDate)).fromNow(); // a year ago
             supportStatus['level1'] = true;
+            totalcredit += int.parse(SurveyElement['reward'].toString());
           }
           bool status = completedSurvey.length > 0;
-          totalcredit += int.parse(SurveyElement['reward'].toString());
 
           dummyActions.add(
             TrialAction(
@@ -1328,8 +1328,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                                 ),
                                                 Text(
                                                   "\$" +
-                                                      userDetails[
-                                                              'ongoingcredit']
+                                                      ((userDetails['ongoingcredit'] !=
+                                                                  null)
+                                                              ? userDetails[
+                                                                  'ongoingcredit']
+                                                              : 0)
                                                           .toString(),
                                                   style: TextStyle(
                                                       color: Color(0xFFF06129),
