@@ -27,13 +27,19 @@ function Trials() {
          setData([])
          for (let i = 0; i < Number(await contract._TrialIds().call()); i++) {
             let trial_element = await contract._trialMap(i).call();
+            let allAudiences = [];
+            try {
+               allAudiences = JSON.parse(await contract._trialAudienceMap(i).call());
+            } catch (e) {
+               allAudiences = [];
+            }
             var newTrial = {
                id: Number(trial_element.trial_id),
                title: trial_element.title,
                image: trial_element.image,
                description: trial_element.description,
                contributors: Number(trial_element.contributors),
-               audience: Number(trial_element.audience),
+               audience: Number(allAudiences.length),
                budget: Number(trial_element.budget)
             };
             setData(prevState => [...prevState, newTrial]);
@@ -92,7 +98,7 @@ function Trials() {
                         <div className="flex items-center ml-6">
                            <GlobeAltIcon className="w-5 h-5 text-gray-500" />
                            {(screenSize.dynamicWidth > 760) ? (<>
-                           <p className="text-gray-500 font-semibold ml-1">{`${audience} contributor(s)`}</p></>) :
+                           <p className="text-gray-500 font-semibold ml-1">{`${audience} audience(s)`}</p></>) :
                      (<><p className="text-gray-500 font-semibold ml-1">{`${audience}`}</p></>)}
                         </div>
                         <div className="flex items-center ml-6">

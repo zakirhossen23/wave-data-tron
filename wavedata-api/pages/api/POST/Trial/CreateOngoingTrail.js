@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   
     const { trialid,userid } = req.body;
  
-    await contract.CreateOngoingTrail(Number(trialid),Number(userid)).send({
+    await contract.CreateOngoingTrail(Number(trialid),Number(userid),(new Date()).toISOString()).send({
       feeLimit: 1_000_000_000,
       shouldPollResponse: false
     });

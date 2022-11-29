@@ -82,20 +82,20 @@ function TrialDetails() {
          title: 'Name',
       },
       {
-         id: 'age',
-         title: 'Age',
+         id: 'givenname',
+         title: 'Given Name',
       },
       {
-         id: 'race',
-         title: 'Race',
+         id: 'identifier',
+         title: 'Identifier',
+      },
+      {
+         id: 'patient_id',
+         title: 'Patient Id',
       },
       {
          id: 'gender',
          title: 'Gender',
-      },
-      {
-         id: 'disease',
-         title: 'Disease',
       }
       ,
       {
@@ -230,13 +230,19 @@ function TrialDetails() {
       if (contract !== null) {
          setTRIAL_DATA({})
          let trial_element = await contract._trialMap(parseInt(params.id)).call();
+         let allAudiences = [];
+         try {
+            allAudiences = JSON.parse(await contract._trialAudienceMap(parseInt(params.id)).call());
+         } catch (e) {
+            allAudiences = [];
+         }
          var newTrial = {
             id: Number(trial_element.trial_id),
             title: trial_element.title,
             image: trial_element.image,
             description: trial_element.description,
             contributors: Number(trial_element.contributors),
-            audience: Number(trial_element.audience),
+            audience: Number(allAudiences.length),
             budget: Number(trial_element.budget)
          };
          setTRIAL_DATA(newTrial);
@@ -303,22 +309,17 @@ function TrialDetails() {
    }
    async function LoadDataContributors() {
       setContributors([])
-      sleep(10)
-      await fetch(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/getContributors?TrialidTXT=${parseInt(params.id)}`, {
-         "headers": {
-            "accept-language": "en-US,en;q=0.9",
-            "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-         },
-         "body": null,
-         "method": "GET"
-      }).then(e => {
-         return e.json();
-      }).then(e => {
-         e.results[0].SV.forEach(element => {
-            setContributors(prevState => [...prevState, element.attributes]);
-         });
-         console.log(data)
-      })
+      for (let i = 0; i < Number(await contract._OngoingIds()); i++) {
+         const element = await contract._ongoingMap(i).call();
+         const user_element = await contract.getUserDetails(element.user_id).call();
+         const fhir_element = await contract._fhirMap(element.user_id).call();
+         if (element.trial_id === parseInt(params.id)){
+
+            setContributors(prevState => [...prevState, {
+               id: i,name:user_element.name, givenname:fhir_element.given_name, identifier:fhir_element.identifier, patient_id: fhir_element.patient_id, gender:user_element.name,joined:element.date,
+            }]);
+         }
+      }
    }
 
    async function deleteTrial() {
@@ -411,7 +412,7 @@ function TrialDetails() {
                <div className="flex items-center ml-6">
                   <GlobeAltIcon className="w-5 h-5 text-gray-500" />
                   {(screenSize.dynamicWidth > 760) ? (<>
-                     <p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.audience} contributor(s)`}</p></>) :
+                     <p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.audience} audience(s)`}</p></>) :
                      (<><p className="text-gray-500 font-semibold ml-1">{`${TRIAL_DATA?.audience}`}</p></>)}
                </div>
                <div className="flex items-center ml-6">
@@ -516,7 +517,7 @@ function TrialDetails() {
                      </tr>
                   </thead>
                   <tbody>
-                     {contributors.map(({ id, name, question, reward, submission, Lastsubmission, image }, index) => {
+                     {contributors.map(({ id, name, givenname, identifier, patient_id , gender,joined }, index) => {
                         const IS_LAST = index === data.length - 1;
                         return (
                            <tr key={id} className={`border-b-gray-400 ${!IS_LAST ? 'border-b' : 'border-0'}`}>
@@ -529,15 +530,12 @@ function TrialDetails() {
                                  </div>
 
                               </td>
-                              <td className="py-3 px-3">{question}</td>
-                              <td className="py-3 px-3">{`$${reward}`}</td>
-                              <td className="py-3 px-3">{`${submission}/24`}</td>
-                              <td className="py-3 px-3">{Lastsubmission ? formatDistance(new Date(Lastsubmission), new Date(), { addSuffix: true }) : '-'}</td>
-                              <td className="flex justify-end py-3">
-                                 <button onClick={() => navigate(`/trials/${TRIAL_DATA.id}/survey/${id}`, { state: { trialID: TRIAL_DATA.id } })} className="flex w-[52px] h-10 border border-gray-400 bg-gray-200 rounded-md justify-center items-center">
-                                    <ArrowRightIcon className="w-5 h-5 text-gray-400" />
-                                 </button>
-                              </td>
+                              <td className="py-3 px-3">{givenname}</td>
+                              <td className="py-3 px-3">{`${gender}`}</td>
+                              <td className="py-3 px-3">{`${identifier}`}</td>
+                              <td className="py-3 px-3">{`${patient_id}`}</td>
+                              <td className="py-3 px-3">{joined ? formatDistance(new Date(joined), new Date(), { addSuffix: true }) : '-'}</td>
+                              
                            </tr>
                         );
                      })}

@@ -106,6 +106,7 @@ contract WaveData {
        uint256 ongoing_id;
        uint256 trial_id;
        uint256 user_id;
+       string date;
    }
    
     /// Question Answers of Survey 
@@ -321,13 +322,11 @@ contract WaveData {
     }
   
       //Get UserDetails by userid
-    function getUserDetails(uint256 user_id) public view  returns (string memory, uint256) {
-        return (_userMap[user_id].image, _userMap[user_id].credits);
+    function getUserDetails(uint256 user_id) public view  returns (string memory, uint256,string memory,string memory) {
+        return (_userMap[user_id].image, _userMap[user_id].credits, _userMap[user_id].name, _userMap[user_id].email);
     }
   
-  
-  
-  
+
     //Update Trial
     function UpdateTrial(uint256 trial_id, string memory image,string memory title, string memory description, uint256 budget) public{
         // Update the metadata of Trial in the map.
@@ -389,12 +388,13 @@ contract WaveData {
     }
 
 
-    function CreateOngoingTrail(uint256 trial_id,uint256 user_id) public{
+    function CreateOngoingTrail(uint256 trial_id,uint256 user_id, string memory date) public{
         // Store the metadata of Ongoing Trial in the map.
 	    _ongoingMap[_OngoingIds] = ongoing_struct({
 	        ongoing_id:_OngoingIds,
             trial_id:trial_id,
-            user_id:user_id
+            user_id:user_id,
+            date: date
 	    });
 	    _OngoingIds++;
     }
