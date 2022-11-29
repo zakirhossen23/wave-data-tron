@@ -110,7 +110,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ongoingTrials['image'] = element['image'];
           ongoingTrials['description'] = element['description'];
           ongoingTrials['totalprice'] = element['budget'];
-          userDetails['totalongoingcredit'] = element['budget'];
+          userDetails['totalongoingcredit'] = element['budget'] != null? element['budget']:0;
         });
       } catch (e) {}
 
@@ -160,10 +160,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       var data = (responseDataWD['value']);
       // var imageData = data[2]['IMG'][0]['attributes']['image'];
 
-      // setState(() {
-      //   ImageLink = imageData;
-      //   userDetails["credits"] = data[2]['IMG'][0]['attributes']['credits'];
-      // });
+      setState(() {
+        // ImageLink = imageData;
+        userDetails["credits"] = data['credits'];
+      });
       try {
         var allData = data;
 

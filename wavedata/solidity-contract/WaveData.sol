@@ -14,6 +14,10 @@ contract WaveData {
         string email;
         ///Password of user
         string password;
+        /// The User Image
+        string image;
+        /// The User Credits
+        uint256 credits;
     }
     
     /// Survy Category Struct contains all the Category information
@@ -199,7 +203,9 @@ contract WaveData {
 	        user_id: _UserIds,
 	        name: full_name,
 	        email: email,
-	        password: password
+	        password: password,
+	        image: "https://i.postimg.cc/SsxGw5cZ/person.jpg",
+	        credits: 0
 	    });
 	    _UserIds++;
 	}
@@ -314,6 +320,13 @@ contract WaveData {
         return _SearchedStore;
     }
   
+      //Get UserDetails by userid
+    function getUserDetails(uint256 user_id) public view  returns (string memory, uint256) {
+        return (_userMap[user_id].image, _userMap[user_id].credits);
+    }
+  
+  
+  
   
     //Update Trial
     function UpdateTrial(uint256 trial_id, string memory image,string memory title, string memory description, uint256 budget) public{
@@ -357,6 +370,14 @@ contract WaveData {
 	    
     }
    
+   
+      //Update User
+    function UpdateUser(uint256 user_id,string memory image,uint256 credits) public{
+        // Update the metadata of User in the map
+	    _userMap[user_id].image = image;
+	    _userMap[user_id].credits = credits;
+    }
+
    
     //Update FHIR
     function UpdateFhir(uint256 user_id,string memory given_name,string memory identifier,string memory patient_id) public{

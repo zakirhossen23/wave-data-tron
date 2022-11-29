@@ -113,6 +113,7 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
         'trialid': trialid.toString(),
         'userid': userid.toString(),
         'surveyid': surveyid.toString(),
+        'sectionid': sectionid.toString(),
         'questionid': questionid.toString(),
         'answer': answerTXT
       });
@@ -129,19 +130,16 @@ class _QuestionnaireScreenState extends ConsumerState<QuestionnaireScreen> {
     final prefs = await SharedPreferences.getInstance();
     String surveyid = prefs.getString("surveyid").toString();
     int userid = int.parse(prefs.getString("userid").toString());
-    try {
-      int trialid = allSections[0]['trialid'];
+    int trialid = int.parse(allSections[0]['trialid']);
 
-      var url = Uri.parse(
-          'https://wave-data-api-tron.netlify.app/api/POST/Trial/Survey/CreateCompletedSurvey');
-      await http.post(url, headers: POSTheader, body: {
-        'surveyid': surveyid.toString(),
-        'userid': userid.toString(),
-        'date': DateTime.now(),
-        'trialid': trialid.toString()
-      });
-    } catch (e) {}
-
+    var url = Uri.parse(
+        'https://wave-data-api-tron.netlify.app/api/POST/Trial/Survey/CreateCompletedSurvey');
+    await http.post(url, headers: POSTheader, body: {
+      'surveyid': surveyid.toString(),
+      'userid': userid.toString(),
+      'date': DateTime.now().toIso8601String(),
+      'trialid': trialid.toString()
+    });
     setState(() {
       isloading = false;
     });
