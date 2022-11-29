@@ -1,0 +1,28 @@
+^H:\CODE\STEVE\WAVE-DATA-TRON\WAVEDATA-APP-MAIN\BUILD\WINDOWS\CMAKEFILES\588129B0BE7F93F20BD949A390BED2C9\FLUTTER_WINDOWS.DLL.RULE
+setlocal
+"H:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E env FLUTTER_ROOT=C:\Shortcut\flutter PROJECT_DIR=H:\Code\Steve\wave-data-tron\wavedata-app-main FLUTTER_ROOT=C:\Shortcut\flutter FLUTTER_EPHEMERAL_DIR=H:\Code\Steve\wave-data-tron\wavedata-app-main\windows\flutter\ephemeral PROJECT_DIR=H:\Code\Steve\wave-data-tron\wavedata-app-main FLUTTER_TARGET=H:\Code\Steve\wave-data-tron\wavedata-app-main\lib\main.dart DART_DEFINES=RkxVVFRFUl9XRUJfQVVUT19ERVRFQ1Q9dHJ1ZQ== DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=H:\Code\Steve\wave-data-tron\wavedata-app-main\.dart_tool\package_config.json C:/Shortcut/flutter/packages/flutter_tools/bin/tool_backend.bat windows-x64 Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^H:\CODE\STEVE\WAVE-DATA-TRON\WAVEDATA-APP-MAIN\BUILD\WINDOWS\CMAKEFILES\E492C5310BEE1EC333D04353E96E28F4\FLUTTER_ASSEMBLE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^H:\CODE\STEVE\WAVE-DATA-TRON\WAVEDATA-APP-MAIN\WINDOWS\FLUTTER\CMAKELISTS.TXT
+setlocal
+"H:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SH:/Code/Steve/wave-data-tron/wavedata-app-main/windows -BH:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows --check-stamp-file H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/flutter/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

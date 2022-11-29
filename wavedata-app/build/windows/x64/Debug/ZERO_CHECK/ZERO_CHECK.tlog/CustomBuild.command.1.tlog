@@ -1,0 +1,10 @@
+^H:\CODE\STEVE\WAVE-DATA-TRON\WAVEDATA-APP-MAIN\BUILD\WINDOWS\CMAKEFILES\64FD6815217DD96FDA86C3B0A928F412\GENERATE.STAMP.RULE
+setlocal
+"H:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SH:/Code/Steve/wave-data-tron/wavedata-app-main/windows -BH:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/wavedata.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

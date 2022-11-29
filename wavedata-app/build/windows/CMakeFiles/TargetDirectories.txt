@@ -1,0 +1,10 @@
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/CMakeFiles/INSTALL.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/CMakeFiles/ALL_BUILD.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/CMakeFiles/ZERO_CHECK.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/flutter/CMakeFiles/flutter_wrapper_plugin.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/flutter/CMakeFiles/flutter_wrapper_app.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/flutter/CMakeFiles/flutter_assemble.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/flutter/CMakeFiles/INSTALL.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/runner/CMakeFiles/wavedata.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/runner/CMakeFiles/INSTALL.dir
+H:/Code/Steve/wave-data-tron/wavedata-app-main/build/windows/runner/CMakeFiles/ALL_BUILD.dir
