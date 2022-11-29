@@ -77,6 +77,13 @@ function Register() {
             setisTronConnected(true);
         }
     }
+    useEffect(()=>{
+        if (window.tronLink.tronWeb !== false ){
+            setisTronConnected(true);
+        }else{
+            setisTronConnected(false);
+        }
+    },[contract])
     return (
         <div className="min-h-screen grid-cols-2 flex">
             <div className="bg-blue-200 flex-1 img-panel">
@@ -119,9 +126,9 @@ function Register() {
                             <button onClick={e=>{onClickConnect(1)}}  className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
                                 <span id='buttonText'>Connect TronLink</span>
                             </button>
-                            <button onClick={e=>{onClickConnect(0)}}  className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
+                            {/* <button onClick={e=>{onClickConnect(0)}}  className="bg-orange-500 text-white rounded-md shadow-md h-10 w-full mt-3 hover:bg-orange-600 transition-colors overflow:hidden flex content-center items-center justify-center cursor-pointer">
                                 <span id='buttonText'>Continue without TronLink</span>
-                            </button>
+                            </button> */}
                         </>)}
 
 
