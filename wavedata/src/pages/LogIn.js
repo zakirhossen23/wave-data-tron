@@ -95,7 +95,13 @@ function Login() {
       event.target.disabled = false;
 
    }
-
+   useEffect(()=>{
+      if (window.tronLink.tronWeb !== false ){
+          setisTronConnected(true);
+      }else{
+          setisTronConnected(false);
+      }
+  },[contract])
 
    return (
       <div className="min-h-screen grid-cols-2 flex">

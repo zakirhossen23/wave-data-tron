@@ -230,7 +230,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   bool isOngoingTrial = false;
 
   var PatientDetails = {
-    "gender": "male",
+    "gender": "",
     "name-family": "",
     "name-given": "",
     "phone": "",
@@ -1217,7 +1217,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                                 fontWeight: FontWeight.w700),
                                           ),
                                           Text(
-                                            "\$" +
+                                            "TRX " +
                                                 userDetails['credits']
                                                     .toString(),
                                             style: TextStyle(
@@ -1327,7 +1327,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                                           FontWeight.w700),
                                                 ),
                                                 Text(
-                                                  "\$" +
+                                                  "TRX " +
                                                       ((userDetails['ongoingcredit'] !=
                                                                   null)
                                                               ? userDetails[

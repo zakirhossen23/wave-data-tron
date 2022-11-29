@@ -176,7 +176,7 @@ function TrialDetails() {
 
       rewardsSave.disabled = true;
       try {
-         await contract.UpdateReward(Number(parseInt(params.id)), rewardselect.value, Number(rewardprice.value.replace("$", "")), parseInt(totalspendlimit.value.replace("$", ""))).send({
+         await contract.UpdateReward(Number(parseInt(params.id)), rewardselect.value, Number(rewardprice.value.replace("TRX", "")), parseInt(totalspendlimit.value.replace("TRX", ""))).send({
             feeLimit: 1_000_000_000,
             shouldPollResponse: false
          });
@@ -549,10 +549,10 @@ function TrialDetails() {
                         <div className="flex gap-8 items-center ">
                            <select name='rewardselect' defaultValue={REWARD_DATA.reward_type ? (REWARD_DATA.reward_type) : ("")} id='rewardselect' className="mt-1 h-10 px-2 rounded-md border border-gray-200 outline-none w-6/12">
                               <option value="">Select a reward</option>
-                              <option value="Cash">Cash</option>
+                              <option value="TRX">TRX</option>
                            </select>
                            <label className="flex flex-col font-semibold mt-1 w-6/12">
-                              <input type="text" defaultValue={REWARD_DATA.reward_price ? (`$${REWARD_DATA.reward_price}`) : ("$0")} id="rewardprice" name="rewardprice" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="$0" />
+                              <input type="text" defaultValue={REWARD_DATA.reward_price ? (`TRX ${REWARD_DATA.reward_price}`) : ("TRX 0")} id="rewardprice" name="rewardprice" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="TRX 0" />
                            </label>
                         </div>
                      </div>
@@ -560,7 +560,7 @@ function TrialDetails() {
                         <h4 >Total spending limit</h4>
                         <div className="flex gap-8 justify-between items-center ">
                            <label style={{ width: '47%' }} className="flex flex-col font-semibold mt-1">
-                              <input type="text" defaultValue={REWARD_DATA.total_spending_limit ? (`$${REWARD_DATA.total_spending_limit}`) : ("$0")} id="totalspendlimit" name="totalspendlimit" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="$0" />
+                              <input type="text" defaultValue={REWARD_DATA.total_spending_limit ? (`$${REWARD_DATA.total_spending_limit}`) : ("TRX 0")} id="totalspendlimit" name="totalspendlimit" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="TRX 0" />
                            </label>
                            <button type="submit" id="rewardsSave" className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-600" >
                               <p className="text-white ml-1">Save</p>
