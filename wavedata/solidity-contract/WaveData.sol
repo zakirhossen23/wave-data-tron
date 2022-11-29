@@ -412,7 +412,17 @@ contract WaveData {
 		return "False";
     }
 
-
+//     function GetQuestionAnswers(uint256 trial_id,uint256 survey_id,uint256 question_id) public view returns (string memory ){
+//         ///Getting the found Ongoing Trial
+// 		for (uint256 i = 0; i < _OngoingIds; i++) {
+// 		    if (_ongoingMap[i].user_id == user_id) {
+// 			    ///Returning Trial id 
+// 				return Strings.toString(_ongoingMap[i].trial_id);
+// 			}
+// 		}
+//         ///Returning False if not found 
+// 		return "False";
+//     }
     function CreateQuestionAnswer(  uint256 trial_id,uint256 user_id,uint256 survey_id,uint256 section_id,uint256 question_id,string memory answer) public{
         // Store the metadata of Question Answered in the map.
 	    _questionanswerdMap[_AnsweredIds] = survey_question_answer_struct({

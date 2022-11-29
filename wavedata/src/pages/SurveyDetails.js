@@ -621,154 +621,154 @@ function SurveyDetails() {
    async function loadGraph() {
 
       for (let sectindex = 0; sectindex < sectionsdata.length; sectindex++) {
-         setstatus("loadng...")
-         for (let index = 0; index < sectionsQuestionsdata.length; index++) {
-            const eleQ = sectionsQuestionsdata[index];
-            axios
-               .post(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetSurveyAnswers?questionidTXT=${encodeURIComponent(eleQ.id)}`, {}, {
-                  headers: {
-                     "accept-language": "en-US,en;q=0.9",
-                     "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
-                  }
-               }).then((res) => {
-                  if (res.status === 200) {
-                     var answersids = [];
-                     var alldata = [];
-                     var allusersData = res.data['results'][1]['USERS'];
-                     res.data['results'][0]['SV'].forEach(element => {
-                        answersids.push(element['attributes']['answer'])
-                        alldata.push(element['attributes'])
+         // setstatus("loadng...")
+         // for (let index = 0; index < sectionsdata[sectindex].questions.length; index++) {
+         //    const eleQ = sectionsdata[sectindex].questions[index];
+         //    axios
+         //       .post(`https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/GetSurveyAnswers?questionidTXT=${encodeURIComponent(eleQ.id)}`, {}, {
+         //          headers: {
+         //             "accept-language": "en-US,en;q=0.9",
+         //             "Authorization": "Bearer h6t28nnpr3e58pdm1c1miiei4kdcejuv",
+         //          }
+         //       }).then((res) => {
+         //          if (res.status === 200) {
+         //             var answersids = [];
+         //             var alldata = [];
+         //             var allusersData = res.data['results'][1]['USERS'];
+         //             res.data['results'][0]['SV'].forEach(element => {
+         //                answersids.push(element['attributes']['answer'])
+         //                alldata.push(element['attributes'])
 
-                     });
-                     console.log(allusersData);
-                     var count = 0;
-                     var children = [];
+         //             });
+         //             console.log(allusersData);
+         //             var count = 0;
+         //             var children = [];
 
-                     function GetUsers(answer) {
-                        var allusers = [];
-                        var usercount = 0;
-                        alldata.forEach(element => {
-                           if (element['answer'] == answer) {
-                              var userdata = allusersData.filter(e => e.userid == element['userid'])[0];
-                              allusers.push({
-                                 "children": [],
-                                 "email": userdata['email'],
-                                 "id": `${userdata['username']}${usercount.toString()}`,
-                                 "name": userdata['username'],
-                                 "style": {
-                                    "fill": "#c99cdf",
-                                    "stroke": "#A800FB"
-                                 }
+         //             function GetUsers(answer) {
+         //                var allusers = [];
+         //                var usercount = 0;
+         //                alldata.forEach(element => {
+         //                   if (element['answer'] == answer) {
+         //                      var userdata = allusersData.filter(e => e.userid == element['userid'])[0];
+         //                      allusers.push({
+         //                         "children": [],
+         //                         "email": userdata['email'],
+         //                         "id": `${userdata['username']}${usercount.toString()}`,
+         //                         "name": userdata['username'],
+         //                         "style": {
+         //                            "fill": "#c99cdf",
+         //                            "stroke": "#A800FB"
+         //                         }
 
-                              })
-                           }
-                        })
-                        return allusers;
-                     }
+         //                      })
+         //                   }
+         //                })
+         //                return allusers;
+         //             }
 
-                     answersids.forEach(element => {
-                        children.push({
-                           "children": GetUsers(element),
-                           "id": "answer " + count.toString(),
-                           "name": `Answer ${element}`,
-                           "style": {
-                              "fill": "#d28b69",
-                              "stroke": "#F9641D"
-                           }
-                        })
-                        count++;
-                     })
-                     var result = {
-                        "name": "question",
-                        "id": "question",
-                        "children": children,
-                        "style": {
-                           "fill": "#FFD8D9",
-                           "stroke": "#FF6D67",
-                        }
-                     }
+         //             answersids.forEach(element => {
+         //                children.push({
+         //                   "children": GetUsers(element),
+         //                   "id": "answer " + count.toString(),
+         //                   "name": `Answer ${element}`,
+         //                   "style": {
+         //                      "fill": "#d28b69",
+         //                      "stroke": "#F9641D"
+         //                   }
+         //                })
+         //                count++;
+         //             })
+         //             var result = {
+         //                "name": "question",
+         //                "id": "question",
+         //                "children": children,
+         //                "style": {
+         //                   "fill": "#FFD8D9",
+         //                   "stroke": "#FF6D67",
+         //                }
+         //             }
 
-                     Thisstate.data = result;
-                     const container = document.getElementById(`section${sectindex}container${index}`);
-                     const width = 400;
-                     const height = 400;
-                     container.innerHTML = "";
-                     const graph = new G6.TreeGraph({
-                        container: `section${sectindex}container${index}`,
-                        width,
-                        height,
-                        modes: {
-                           default: [
-                              {
-                                 type: 'collapse-expand',
-                                 onChange: function onChange(item, collapsed) {
-                                    const data = item.get('model');
-                                    data.collapsed = collapsed;
-                                    return true;
-                                 },
-                              },
-                              'drag-canvas',
-                              'zoom-canvas',
-                              'drag-node',
-                              'activate-relations',
-                           ],
-                        },
-                        defaultNode: {
-                           size: 55,
-                        },
-                        layout: {
-                           type: 'dendrogram',
-                           direction: 'RL',
-                           nodeSep: 10,
-                           rankSep: 200,
-                           radial: true,
-                        },
-                     });
-                     graph.node(function (node) {
-                        console.log("here=>", node);
-                        return {
-                           label: `${node['name']}`
-                        };
-                     });
+         //             Thisstate.data = result;
+         //             const container = document.getElementById(`section${sectindex}container${index}`);
+         //             const width = 400;
+         //             const height = 400;
+         //             container.innerHTML = "";
+         //             const graph = new G6.TreeGraph({
+         //                container: `section${sectindex}container${index}`,
+         //                width,
+         //                height,
+         //                modes: {
+         //                   default: [
+         //                      {
+         //                         type: 'collapse-expand',
+         //                         onChange: function onChange(item, collapsed) {
+         //                            const data = item.get('model');
+         //                            data.collapsed = collapsed;
+         //                            return true;
+         //                         },
+         //                      },
+         //                      'drag-canvas',
+         //                      'zoom-canvas',
+         //                      'drag-node',
+         //                      'activate-relations',
+         //                   ],
+         //                },
+         //                defaultNode: {
+         //                   size: 55,
+         //                },
+         //                layout: {
+         //                   type: 'dendrogram',
+         //                   direction: 'RL',
+         //                   nodeSep: 10,
+         //                   rankSep: 200,
+         //                   radial: true,
+         //                },
+         //             });
+         //             graph.node(function (node) {
+         //                console.log("here=>", node);
+         //                return {
+         //                   label: `${node['name']}`
+         //                };
+         //             });
 
-                     graph.edge(function (node) {
-                        return {
-                           label: `${node.id}`,
-                        };
-                     });
+         //             graph.edge(function (node) {
+         //                return {
+         //                   label: `${node.id}`,
+         //                };
+         //             });
 
-                     graph.data(Thisstate.data);
+         //             graph.data(Thisstate.data);
 
-                     graph.render();
-                     graph.fitView();
-                     graph.get('canvas').set('localRefresh', false);
-                     graph.on('node:click', (evt) => {
-                        const nodeItem = evt.item;
-                        if (!nodeItem) return;
-                        const item = nodeItem.getModel();
-                        if (item.url) {
-                           window.open(item.url);
-                        }
-                     });
-                     if (typeof window !== 'undefined')
-                        window.onresize = () => {
-                           if (!graph || graph.get('destroyed')) return;
-                           if (
-                              !container ||
-                              !container.scrollWidth ||
-                              !container.scrollHeight
-                           )
-                              return;
-                           graph.changeSize(container.scrollWidth, container.scrollHeight);
-                        };
+         //             graph.render();
+         //             graph.fitView();
+         //             graph.get('canvas').set('localRefresh', false);
+         //             graph.on('node:click', (evt) => {
+         //                const nodeItem = evt.item;
+         //                if (!nodeItem) return;
+         //                const item = nodeItem.getModel();
+         //                if (item.url) {
+         //                   window.open(item.url);
+         //                }
+         //             });
+         //             if (typeof window !== 'undefined')
+         //                window.onresize = () => {
+         //                   if (!graph || graph.get('destroyed')) return;
+         //                   if (
+         //                      !container ||
+         //                      !container.scrollWidth ||
+         //                      !container.scrollHeight
+         //                   )
+         //                      return;
+         //                   graph.changeSize(container.scrollWidth, container.scrollHeight);
+         //                };
 
-                  }
-                  setstatus("loaded!")
-               })
-               .catch((err) => {
-                  console.error(err);
-               });
-         }
+         //          }
+         //          setstatus("loaded!")
+         //       })
+         //       .catch((err) => {
+         //          console.error(err);
+         //       });
+         // }
       }
 
 
