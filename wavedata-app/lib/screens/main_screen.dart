@@ -320,7 +320,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       final prefs = await SharedPreferences.getInstance();
       int userid = int.parse(prefs.getString("userid").toString());
       var url = Uri.parse(
-          'https://wave-data-api-tron.netlify.app/api/POST/Trial/CreateOngoingTrail');
+          'https://wave-data-api-tron.netlify.app/api/POST/UpadateImage');
       await http.post(url, headers: POSTheader, body: {
         'userid': userid.toString(),
         'image': _textFieldController.text

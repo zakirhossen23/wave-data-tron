@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
   
     const { userid, image } = req.body;
-    let details_element = await contract.getUserDetails(Number(req.query.userid)).call();
+    let details_element = await contract.getUserDetails(Number(userid)).call();
   
 
     await contract.UpdateUser(Number(userid), image, Number(details_element[1]) ).send({
