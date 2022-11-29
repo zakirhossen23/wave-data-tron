@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   var newUser = {
     id: Number(req.query.userid),
     image: details_element[0],
-    credits: details_element[1],
+    credits: Number(details_element[1]),
   };
 
   res.status(200).json({ value: newUser })

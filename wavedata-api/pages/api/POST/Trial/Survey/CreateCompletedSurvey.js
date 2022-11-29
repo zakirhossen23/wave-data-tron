@@ -20,10 +20,23 @@ export default async function handler(req, res) {
 
   const { surveyid, userid, date, trialid } = req.body;
 
+  let survey_element = await contract._surveyMap(req.query.surveyid).call();
+
+  let details_element = await contract.getUserDetails(Number(req.query.userid)).call();
+
+
   await contract.CreateCompletedSurveys(Number(surveyid), Number(userid), date, Number(trialid)).send({
     feeLimit: 1_000_000_000,
     shouldPollResponse: false
   });
+
+  let credits = Number(details_element[1]) + Number(survey_element.reward)
+
+  await contract.UpdateUser(Number(userid), details_element[0], Number(credits)) .send({
+    feeLimit: 1_000_000_000,
+    shouldPollResponse: false
+  });
+
   res.status(200).json({ status: 200, value: "Created" })
 
 }

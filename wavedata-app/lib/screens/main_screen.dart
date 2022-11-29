@@ -87,14 +87,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       "totalprice": 0
     };
     dummyActions = [];
-  var url = Uri.parse(
+    var url = Uri.parse(
         'https://wave-data-api-tron.netlify.app/api/GET/Trial/GetOngoingTrial?userid=${userid}');
     final response = await http.get(url);
     var responseData = json.decode(response.body);
 
-
     var data = (responseData['value']);
-
 
     if (data != "None") {
       setState(() {
@@ -110,60 +108,66 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ongoingTrials['image'] = element['image'];
           ongoingTrials['description'] = element['description'];
           ongoingTrials['totalprice'] = element['budget'];
-          userDetails['totalongoingcredit'] = element['budget'] != null? element['budget']:0;
+          userDetails['totalongoingcredit'] =
+              element['budget'] != null ? element['budget'] : 0;
         });
       } catch (e) {}
 
-      
-    setState(() {
-      //Surveys
-      var SurveyAllElement = decoded_data['Survey'];
-      var SurveyAllCompletedElement = decoded_data['Completed'];
-      int totalcredit = 0;
-      for (var i = 0; i < SurveyAllElement.length; i++) {
-        var SurveyElement = SurveyAllElement[i];
-        var completedSurvey = SurveyAllCompletedElement.where((e) =>
-            e['survey_id'] == SurveyElement['id']);
-        String timeToday = "Today";
-        if (completedSurvey.length > 0) {
-          var completedData = completedSurvey.toList()[0];
-          String completedDate = completedData['date'];
-          String timeToday =
-              Jiffy(DateTime.parse(completedDate)).fromNow(); // a year ago
-          supportStatus['level1'] = true;
-        }
-        bool status = completedSurvey.length > 0;
-        totalcredit +=
-            int.parse(SurveyElement['reward'].toString());
+      setState(() {
+        //Surveys
+        var SurveyAllElement = decoded_data['Survey'];
+        var SurveyAllCompletedElement = decoded_data['Completed'];
+        int totalcredit = 0;
+        for (var i = 0; i < SurveyAllElement.length; i++) {
+          var SurveyElement = SurveyAllElement[i];
+          var completedSurvey = SurveyAllCompletedElement.where(
+              (e) => e['survey_id'] == SurveyElement['id']);
+          String timeToday = "Today";
+          if (completedSurvey.length > 0) {
+            var completedData = completedSurvey.toList()[0];
+            String completedDate = completedData['date'];
+            String timeToday =
+                Jiffy(DateTime.parse(completedDate)).fromNow(); // a year ago
+            supportStatus['level1'] = true;
+          }
+          bool status = completedSurvey.length > 0;
+          totalcredit += int.parse(SurveyElement['reward'].toString());
 
-        dummyActions.add(
-          TrialAction(
-              id: SurveyElement['id'].toString(),
-              when: timeToday,
-              content: SurveyElement['name'],
-              isDone: status),
-        );
-      }
-      userDetails['ongoingcredit'] = totalcredit;
-    });
-  
+          dummyActions.add(
+            TrialAction(
+                id: SurveyElement['id'].toString(),
+                when: timeToday,
+                content: SurveyElement['name'],
+                isDone: status),
+          );
+        }
+        userDetails['ongoingcredit'] = totalcredit;
+      });
     }
-}
+  }
 
   Future<void> GetFHIRData(int userid) async {
-    var urlWD = Uri.parse(
+    var url = Uri.parse(
+        'https://wave-data-api-tron.netlify.app/api/GET/getUserDetails?userid=${userid}');
+    final response = await http.get(url);
+    var responseData = json.decode(response.body);
+
+    var dataUD = (responseData['value']);
+
+    setState(() {
+      var imageData = dataUD['image'];
+      ImageLink = imageData;
+      userDetails["credits"] = dataUD['credits'];
+    });
+
+    var urlFH = Uri.parse(
         'https://wave-data-api-tron.netlify.app/api/GET/getFhir?userid=${int.parse(userid.toString())}');
-    final responseWD = await http.get(urlWD);
-    var responseDataWD = json.decode(responseWD.body);
+    final responseFH = await http.get(urlFH);
+    var responseDataFH = json.decode(responseFH.body);
 
-    if (responseDataWD['value'] != null) {
-      var data = (responseDataWD['value']);
-      // var imageData = data[2]['IMG'][0]['attributes']['image'];
+    if (responseDataFH['value'] != null) {
+      var data = (responseDataFH['value']);
 
-      setState(() {
-        // ImageLink = imageData;
-        userDetails["credits"] = data['credits'];
-      });
       try {
         var allData = data;
 
@@ -289,9 +293,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       var url = Uri.parse(
           'https://wave-data-api-tron.netlify.app/api/POST/Trial/CreateOngoingTrail');
       await http.post(url,
-          headers: POSTheader, body: {'trialid': trialid.toString(), 'userid': userid.toString()});
+          headers: POSTheader,
+          body: {'trialid': trialid.toString(), 'userid': userid.toString()});
 
-      print("Click");
       Navigator.pop(context);
     }
 
@@ -315,11 +319,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       });
       final prefs = await SharedPreferences.getInstance();
       int userid = int.parse(prefs.getString("userid").toString());
-
       var url = Uri.parse(
-          'https://cors-anyhere.herokuapp.com/https://wavedata.i.tgcloud.io:14240/restpp/query/WaveData/UpdateImage?useridTXT=${userid}&imageTXT=${_textFieldController.text}');
-      final response = await http.get(url, headers: POSTheader);
-      var responseData = json.decode(response.body);
+          'https://wave-data-api-tron.netlify.app/api/POST/Trial/CreateOngoingTrail');
+      await http.post(url, headers: POSTheader, body: {
+        'userid': userid.toString(),
+        'image': _textFieldController.text
+      });
 
       Navigator.of(context).pop();
     }
