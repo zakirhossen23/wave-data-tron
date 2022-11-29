@@ -472,6 +472,32 @@ contract WaveData {
 
         return _SearchedStore;
     }
+    
+    
+    
+    
+    function reset_all() public {
+    for (uint256 i = 0; i < _UserIds; i++)            delete _userMap[i];
+    for (uint256 i = 0; i < _TrialIds; i++)           delete _trialMap[i];
+    for (uint256 i = 0; i < _TrialIds; i++)           delete _trialRewardMap[i];
+    for (uint256 i = 0; i < _TrialIds; i++)           delete _trialAudienceMap[i];
+    for (uint256 i = 0; i < _SurveyIds; i++)          delete _surveyMap[i];
+    for (uint256 i = 0; i < _SurveyCategoryIds; i++)  delete _categoryMap[i];
+    for (uint256 i = 0; i < _TrialIds; i++)           delete _sectionsMap[i];    
+    for (uint256 i = 0; i < _UserIds; i++)     		  delete _fhirMap[i];      
+    for (uint256 i = 0; i < _OngoingIds; i++)         delete _ongoingMap[i];      
+    for (uint256 i = 0; i < _AnsweredIds; i++)        delete _questionanswerdMap[i];      
+    for (uint256 i = 0; i < _CompletedSurveyIds; i++) delete _completedsurveyMap[i];      
+    _UserIds = 0;
+    _TrialIds = 0;
+    _SurveyIds = 0;
+    _SurveyCategoryIds = 0;
+    _OngoingIds = 0;
+    _AnsweredIds = 0;
+    _CompletedSurveyIds = 0;
+    
+
+    }
 
 }
 
