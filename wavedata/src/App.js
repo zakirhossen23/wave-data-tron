@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie'
 import * as React from "react";
 import {
   Routes,
@@ -15,14 +16,8 @@ import SurveyDetails from "./pages/SurveyDetails";
 import Team from "./pages/Team";
 import TrialDetails from "./pages/TrialDetails";
 import Trials from "./pages/Trials";
-import AppDownload from './pages/AppDownload'
 
-import Work from './pages/work';
-import Privacy from './pages/privacy'
-import FAQ from './pages/faq'
-import About from './pages/about'
-import Contact from './pages/contact'
-import Cookies from 'js-cookie'
+import ResetAll from './pages/ResetAll';
 import cors from 'cors'
 
 export default function App() {
@@ -33,12 +28,7 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/downloadapp" element={<AppDownload />} />
-        <Route path="/work" element={<Work />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/resetall" element={<ResetAll />} />
 
         <Route element={<DashboardLayout />}>
           <Route

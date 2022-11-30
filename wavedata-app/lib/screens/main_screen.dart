@@ -230,7 +230,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   bool isOngoingTrial = false;
 
   var PatientDetails = {
-    "gender": "",
+    "gender": "Female",
     "name-family": "",
     "name-given": "",
     "phone": "",
