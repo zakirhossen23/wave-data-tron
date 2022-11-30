@@ -414,8 +414,8 @@ function TrialDetails() {
                <div className="flex items-center ml-6">
                   <CurrencyDollarIcon className="w-5 h-5 text-gray-500" />
                   {(screenSize.dynamicWidth > 760) ? (<>
-                     <p className="text-gray-500 font-semibold ml-1">{`Budget of $${TRIAL_DATA?.budget}`}</p></>) :
-                     (<><p className="text-gray-500 font-semibold ml-1">{`$${TRIAL_DATA?.budget}`}</p></>)}
+                     <p className="text-gray-500 font-semibold ml-1">{`Budget of TRX ${TRIAL_DATA?.budget}`}</p></>) :
+                     (<><p className="text-gray-500 font-semibold ml-1">{`TRX ${TRIAL_DATA?.budget}`}</p></>)}
                </div>
             </div>
          </div>
@@ -468,7 +468,7 @@ function TrialDetails() {
                                     </div>
                                  </td>
                                  <td className="py-3 px-3" style={{minWidth: '20rem'}}>{description.slice(0, 100)}...</td>
-                                 <td className="py-3 px-3">{`$${reward}`}</td>
+                                 <td className="py-3 px-3">{`TRX ${reward}`}</td>
                                  <td className="py-3 px-3">{`${Number(submission)}/24`}</td>
                                  <td className="py-3 px-3">{date && !isNaN((new Date(date)).getTime()) ? formatDistance(new Date(date), new Date(), { addSuffix: true }) : '-'}</td>
                                  <td className="flex justify-end py-3">
@@ -560,7 +560,7 @@ function TrialDetails() {
                         <h4 >Total spending limit</h4>
                         <div className="flex gap-8 justify-between items-center ">
                            <label style={{ width: '47%' }} className="flex flex-col font-semibold mt-1">
-                              <input type="text" defaultValue={REWARD_DATA.total_spending_limit ? (`$${REWARD_DATA.total_spending_limit}`) : ("TRX 0")} id="totalspendlimit" name="totalspendlimit" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="TRX 0" />
+                              <input type="text" defaultValue={REWARD_DATA.total_spending_limit ? (`TRX ${REWARD_DATA.total_spending_limit}`) : ("TRX 0")} id="totalspendlimit" name="totalspendlimit" className="mt-1 h-10 border border-gray-200 rounded-md outline-none px-2 focus:border-gray-400 " placeholder="TRX 0" />
                            </label>
                            <button type="submit" id="rewardsSave" className="h-10 rounded-md shadow-md bg-black text-white flex py-2 px-4 items-center hover:bg-gray-600" >
                               <p className="text-white ml-1">Save</p>
