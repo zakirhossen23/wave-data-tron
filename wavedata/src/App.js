@@ -19,7 +19,7 @@ import Trials from "./pages/Trials";
 
 import ResetAll from './pages/ResetAll';
 import cors from 'cors'
-
+import './assets/bootstrap.css';
 export default function App() {
   
   return (
